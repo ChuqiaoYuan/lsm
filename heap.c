@@ -120,27 +120,27 @@ void ClearHeap(Heap *h){
 	free(h);
 }
 
-int main(){
-	Heap *heap = CreateHeap(10);
-	InsertKey(heap, 1, 0, true);
-	InsertKey(heap, 2, 3, false);
-	InsertKey(heap, 3, 4, true);
-	InsertKey(heap, 7, 12, true);
-	InsertKey(heap, 8, 15, false);
-	PrintNode(heap);
-	int i;
-	for(i=-2; i<10; i++){
-		printf("key %d position %d\n", i, GetKeyPos(heap, i));
-	}
-	InsertKey(heap, 0, -1, true);
-	InsertKey(heap, 5, 8, true);
-	InsertKey(heap, 1, 1, true);
-	InsertKey(heap, 8, 14, true);
-	InsertKey(heap, 4, 7, false);
-	PrintNode(heap);
-	for(i=-2; i<10; i++){
-		printf("key %d position %d\n", i, GetKeyPos(heap, i));
-	}	
-	ClearHeap(heap);
-	return 0;
-}
+//int main(){
+//	Heap *heap = CreateHeap(10);
+//	InsertKey(heap, 1, 0, true);
+//	InsertKey(heap, 2, 3, false);
+//	InsertKey(heap, 3, 4, true);
+//	InsertKey(heap, 7, 12, true);
+//	InsertKey(heap, 8, 15, false);
+//	PrintNode(heap);
+//	int i;
+//	for(i=-2; i<10; i++){
+//		printf("key %d position %d\n", i, GetKeyPos(heap, i));
+//	}
+//	InsertKey(heap, 0, -1, true);
+//	InsertKey(heap, 5, 8, true);
+//	InsertKey(heap, 1, 1, true);
+//	InsertKey(heap, 8, 14, true);
+//	InsertKey(heap, 4, 7, false);
+//	PrintNode(heap);
+//	for(i=-2; i<10; i++){
+//		printf("key %d position %d\n", i, GetKeyPos(heap, i));
+//	}	
+//	ClearHeap(heap);
+//	return 0;
+//}

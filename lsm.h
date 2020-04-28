@@ -50,7 +50,7 @@ typedef struct LSMtree{
 	int T;
 	FilteredLevel *filtered;
 	UnfilteredLevel *unfiltered;
-}
+} LSMtree;
 
 //declaration for heap.c
 Heap *CreateHeap(int size);
