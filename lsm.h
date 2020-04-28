@@ -14,6 +14,31 @@ typedef struct Heap{
 	int size;
 } Heap;
 
+//要不要改成统一的run
+//设置参数bool filtered
+//bloom filter pointer可以为空
+//最后一个level也可以是size是1的level,相当于只有1个run
+//生成level的时候确认参数，保证每个level的初始化参数是对的
+//linked list or array?
+
+typedef struct Run{
+	int visited;
+	int count;
+	int size;
+	int start;
+	int end;
+	bool filtered;
+	FILE *fencepointer;
+	BloomFilter *bloom;
+} Run;
+
+typedef struct Level{
+	Run *array;
+	int count;
+	int size;
+	bool filtered;
+} Level;
+
 typedef struct FilteredRun{
 	int visited;
 	int count;
