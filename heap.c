@@ -95,9 +95,7 @@ void HeapifyBottomTop(Heap *h, int index){
 
 void InsertKey(Heap *h, int key, int value, bool flag){
 	int position = GetKeyPos(h, key);
-	//printf("test key %d position %d\n", key, position);
 	if(position != -1){
-		//printf("test 2 position %d key %d\n", position, key);
 		h->array[position].value = value;
 		h->array[position].flag = flag;
 	}else{
