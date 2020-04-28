@@ -30,7 +30,7 @@ typedef struct UnfilteredRun{
 	int size;
 	int start;
 	int end;
-	FILE *f;
+	FILE *filepointer;
 } UnfilteredRun;
 
 typedef struct FilteredLevel{
@@ -59,3 +59,7 @@ void HeapifyBottomTop(Heap *h, int index);
 void InsertKey(Heap *h, int key, int value, bool flag);
 void PrintNode(Heap *h);
 void ClearHeap(Heap *h);
+
+//declaration for level.c
+
+//declaration for lsm.c
