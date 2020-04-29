@@ -54,6 +54,8 @@ void Put(int key, int value, bool flag){
 //然后写bloom filters搞定get
 void Merge(LevelNode *DestLevel, int origin, int levelsize, bool filtered, 
 	int runcount, int runsize, int start, int end, FILE *file, BloomFilter *bloom){
+	//check if the level exists
+	//if it does not exist, initiate a new level and insert the run
 	if(DestLevel == NULL){
 		DestLevel = (LevelNode *) malloc(sizeof(LevelNode));
 		Level *level = CreateLevel(levelsize, filtered);
@@ -61,8 +63,38 @@ void Merge(LevelNode *DestLevel, int origin, int levelsize, bool filtered,
 		DestLevel->level = level;
 		DestLevel->number = origin + 1;
 		DestLevel->next = NULL;
+	//if the level exists, find out if there are runs with overlapping key ranges  
 	}else{
-		
+		int i;
+		int j = 0;
+		Level *level = DestLevel->level;
+		int *distance = (int *) malloc(level->count * sizeof(int));
+		int *overlap = (int *) malloc(level->count * sizeof(int));
+		for(i = 0; i < level->count; i++){
+			if((level->array[i].start > end) || (level->array[i].end < start)){
+				if(level->array[i].start > end){
+					distance[i] = level->array[i].start - end;
+				}else{
+					distance[i] = start - level->array[i].end;
+				}
+			}else{
+				distance[i] = 0;
+				overlap[j] = i;
+				j += 1;
+			}
+		}
+		if(j != 0){
+			//有重叠的，所有的run都pop出来，一起sort再写出去
+			//中间有可能触发新的merge,先判断是否会产生第T个run
+			//如果会的话就先把目前第1个run merge进一层，再把这层新的run都插进去
+			//如果不会的话就直接插入新的run
+			//注意新run和旧run一起更新的时候，如果遇到相同key以新run为准
+		}else{
+			//跟已有run merge还是另起一run???
+			//能另起一run就另起一run，避免这个level里有一些run key range过大
+			//不能另起一run时先判断有没有还有剩余空间的run，有的话merge在一起
+			//没有有剩余空间的run，那就扔一个run下去，然后插这个新的run进入level
+		}
 	}
 }
 
