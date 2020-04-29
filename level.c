@@ -12,7 +12,7 @@ Level *CreateLevel(int size, bool filtered){
 	level->size = size;
 	level->filtered = filtered;
 	level->count = 0;
-	level->array = (Run *) malloc(size*sizeof(Run));
+	level->array = (Run *) malloc(size * sizeof(Run));
 	if(level->array == NULL){
 		printf("There is not enough memory for the array of runs.")
 		return NULL;

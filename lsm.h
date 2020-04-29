@@ -39,42 +39,47 @@ typedef struct Level{
 	bool filtered;
 } Level;
 
-typedef struct FilteredRun{
-	int visited;
-	int count;
-	int size;
-	int start;
-	int end;
+typedef struct LevelNode{
+	Level *level;
+	int number;
+	Level *next;
+}
+
+//typedef struct FilteredRun{
+//	int visited;
+//	int count;
+//	int size;
+//	int start;
+//	int end;
 	//BloomFilter bloom;
-	FILE *f;
-} FilteredRun;
+//	FILE *f;
+//} FilteredRun;
 
-typedef struct UnfilteredRun{
-	int visited;
-	int count;
-	int size;
-	int start;
-	int end;
-	FILE *filepointer;
-} UnfilteredRun;
+//typedef struct UnfilteredRun{
+//	int visited;
+//	int count;
+//	int size;
+//	int start;
+//	int end;
+//	FILE *filepointer;
+//} UnfilteredRun;
 
-typedef struct FilteredLevel{
-	FilteredRun *array;
-	int count;
-	int size;
-} FilteredLevel;
+//typedef struct FilteredLevel{
+//	FilteredRun *array;
+//	int count;
+//	int size;
+//} FilteredLevel;
 
-typedef struct UnfilteredLevel{
-	UnfilteredRun *array;
-	int count;
-	int size;
-} UnfilteredLevel;
+//typedef struct UnfilteredLevel{
+//	UnfilteredRun *array;
+//	int count;
+//	int size;
+//} UnfilteredLevel;
 
 typedef struct LSMtree{
 	Heap *buffer;
 	int T;
-	FilteredLevel *filtered;
-	UnfilteredLevel *unfiltered;
+	LevelNode * L1;
 } LSMtree;
 
 //declaration for heap.c
