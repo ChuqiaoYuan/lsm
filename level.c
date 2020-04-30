@@ -58,15 +58,15 @@ void LevelHeapifyTopBottom(Level *level, int parent){
 	}
 }
 
-void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, FILE *f, BloomFilter *b){
+void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, char *name, BloomFilter *bloom){
 	level->array[level->count].visited = 0;
 	level->array[level->count].count = count;
 	level->array[level->count].size = size;
 	level->array[level->count].start = start;
 	level->array[level->count].end = end;
 	level->array[level->count].filtered = filtered;
-	level->array[level->count].fencepointer = f;
-	level->array[level->count].bloom = b;
+	level->array[level->count].fencepointer = name;
+	level->array[level->count].bloom = bloom;
 	LevelHeapifyBottomTop(level, level->count);
 	level->count += 1;
 }

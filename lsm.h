@@ -28,7 +28,7 @@ typedef struct Run{
 	int start;
 	int end;
 	bool filtered;
-	FILE *fencepointer;
+	char *fencepointer;
 	BloomFilter *bloom;
 } Run;
 
