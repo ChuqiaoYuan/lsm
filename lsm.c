@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "lsm.h"
 
 #define INT_MAX 2147483647
@@ -30,35 +31,43 @@ void Put(int key, int value, bool flag){
 		//insert key directly if the buffer is not full
 		if(lsm->buffer.count < lsm->buffer.size){
 			InsertKey(lsm->buffer, key, value, flag);
-		//firstly clear the buffer and merge it into level 1
-		//then insert key to the cleared buffer
 		}else if(lsm->buffer.count == lsm->buffer.size){
 			//clear the buffer and get the sorted run
-			//merge the sorted run to level 1
 			Node *sortedrun = HeapSort(lsm->buffer);
-			int start = sortedrun[0].key;
-			int end = sortedrun[lsm->buffer.size - 1].key;
-			FILE *fptr = fopen("a.txt", "w");//关于每个run的文件名也要好好想想
-			//把sorted run给写进去啊！！！
-			fwrite(sortedrun, sizeof(Node), (lsm->buffer.size), fptr);
-			fclose(fptr);
-			Merge(lsm->L1, 0, (lsm->T - 1), false,
-				lsm->buffer.size, lsm->buffer.size, start, end, fptr, NULL);
+			//merge this sorted run into level 1
+			Merge(lsm->L1, 0, (lsm->T - 1), false, 
+				lsm->buffer.size, lem->buffer.size, sortedrun, NULL);
+
+
+			/*discard
+
+
+			//int start = sortedrun[0].key;
+			//int end = sortedrun[lsm->buffer.size - 1].key;
+			//注意文件名的处理和命名
+			//char filename[] = "L0";
+			//FILE *fp = fopen(filename, "wt");
+			//fwrite(sortedrun, sizeof(Node), lsm->buffer.size, fp);
+			//fclose(fp)
+			//之后加入filter这里还要再变动
+			//Merge(lsm->L1, 0, (lsm->T - 1), false,
+				//lsm->buffer.size, lsm->buffer.size, start, end, filename, NULL);
+
+
+			discard*/
+
 			//insert key in buffer
 			InsertKey(lsm->buffer, key, value, flag);
 		}
 	}
 }
 
-//destlevel is null
-//how to decide if destlevel is full
-//what if it is full
-//if it is not full, which runs to merge together
-//注意初始化一个level之后，如何往里面插入run，操作是插入run而不是直接插入Node
-//写完merge就能搞定put
-//然后写bloom filters搞定get
+void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
+	int runcount, int runsize, Node *sortedrun, BloomFilter *bloom)
+void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, char *name, BloomFilter *bloom)
+
 void Merge(LevelNode *DestLevel, int origin, int levelsize, bool filtered,
-	int runcount, int runsize, int start, int end, FILE *file, BloomFilter *bloom){
+	int runcount, int runsize, int start, int end, char *file, BloomFilter *bloom){
 	//check if the level exists
 	//if it does not exist, initiate a new level and insert the run
 	if(DestLevel == NULL){
