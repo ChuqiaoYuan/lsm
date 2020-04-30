@@ -178,48 +178,123 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 			//overlap里的run已经按start排好序
 			//所以直接先融合一个大array出来
 			//再往这个新的array里插heap
-			//把已有的runs都用新的array填满
+			//把已有的runs都用新的array填满——问题是不一定能填满，这就非常尴尬
 			//这个时候如果count == size (相当于原本的level就是满的)，就丢一个run下去，再插入最后的多出来的run
 			//这个时候如果count < size,就直接插入多出来的这个run
+			int oldcount = 0;
+			for(i = 0; i < j; i++){
+				oldcount += destlevel->array[overlap[i]].count;
+			}
+			Node *oldarray = (Node *) malloc(oldcount * sizeof(Node));
+			oldcount = 0;
+			for(i = 0; i < j; i++){
+				FILE *fp = fopen(destlevel->array[overlap[i]].fencepointer, "rt");
+				fread(oldarray[oldcount], sizeof(Node), destlevel->array[overlap[i]].count, fp);
+				fclose(fp);
+				oldcount += destlevel->array[overlap[i]].count;
+			}
 
+			Heap *h = (Heap *) malloc(sizeof(Heap));
+			h->array = oldarray;
+			h->count = oldcount;
+			h->size = oldcount + runcount;
 
+			int position;
+			for(i = 0; i < runcount; i++){
+				position = GetKeyPos(h, sortedrun[i].key);
+				if(position != -1){
+					h->array[position].value = sortedrun[i].value;
+					h->array[position].flag = sortedrun[i].flag;
+				}else{
+					InsertKey(h, sortedrun[i].key, sortedrun[i].value, sortedrun[i].flag);
+				}
+			}
 
+			//往旧run里填融合好的array
+			//尴尬的是不一定能填满emmmmmmmmmmmmm
+			//几种情况，压根填不满旧run
+			//填满了旧run且无多余
+			//填满了旧run还多出1个array
 
-
-
-
-
-					Run oldrun = destlevel->array[minpos];
-					Node *oldarray = (Node *) malloc(oldrun->count * sizeof(Node));
-					FILE *fp = fopen(oldrun->fencepointer, "rt");
-					fread(oldarray, sizeof(Node), oldrun->count, fp);
-					fclose(fp);
-
-					Heap *h = (Heap *) malloc(sizeof(Heap));
-					h->array = oldarray;
-					h->count = oldrun->count;
-					h->size = oldrun->count + runcount;
-
-					int position;
-					for(i = 0; i < runcount; i++){
-						position = GetKeyPos(h, sortedrun[i].key);
-						if(position != -1){
-							h->array[position].value = sortedrun[i].value;
-							h->array[position].flag = sortedrun[i].flag;
-						}else{
-							InsertKey(h, sortedrun[i].key, sortedrun[i].value, sortedrun[i].flag);
-						}
-					}
-
-					//if(h->count <= oldrun->size){//这个判断在找minpos的时候就做过了
+			int numrun;
+			if(h->count % destlevel->array[0].size == 0){
+				numrun = h->count / destlevel->array[0].size;
+			}else{
+				numrun = h->count / destlevel->array[0].size + 1;
+			}
+			if(numrun <= j){
+				//existing runs can hold these keys
+				for(i = 0; (i < (numrun - 1)); i++){
+					oldrun = destlevel->array[overlap[i]];
 					FILE *fp = fopen(oldrun->fencepointer, "wt");
-					fwrite(h->array, sizeof(Node), h->count, fp);
+					fwrtie(h->array[i * oldrun->size], sizeof(Node), oldrun->size, fp);
 					fclose(fp);
-					oldrun->count = h->count;
-					oldrun->start = h->array[0].key;
-					oldrun->end = h->array[h->count - 1].key;
-					//之后需要更新这个bloom
+					oldrun->count = oldrun->size;
+					oldrun->start = h->array[i * oldrun->size].key;
+					oldrun->end = h->array[(i + 1) * oldrun->size - 1].key;
+					//之后要更新这个bloom
 					oldrun->bloom = NULL;
+				}
+				oldrun = destlevel->array[overlap[numrun - 1]];
+				FILE *fp = fopen(oldrun->fencepointer, "wt");
+				fwrite(h->array[(numrun - 1) * oldrun->size], sizeof(Node), (h->count - (numrun - 1) * oldrun->size), fp);
+				fclose(fp);
+				oldrun->count = h->count - (numrun - 1) * oldrun->size;
+				oldrun->start = h->array[(numrun - 1) * oldrun->size].key;
+				oldrun->end = h->array[h->count - 1].key;
+				//之后要更新这个bloom
+				oldrun->bloom = NULL;
+				if(numrun < j){
+					for(i = numrun; i < j; i++){
+						oldrun = destlevel->array[overlap[i]];
+						oldrun->count = 0;
+						oldrun->start = INT_MAX + 1;
+						oldrun->end = INT_MAX;
+						oldrun->fencepointer = "NULL";
+						oldrun->bloom = NULL;
+					}
+				}
+			}else{
+				//existing runs can not hold all the keys
+				for(i = 0; i < j; i++){
+					oldrun = destlevel->array[overlap[i]];
+					FILE *fp = fopen(oldrun->fencepointer, "wt");
+					fwrtie(h->array[i * oldrun->size], sizeof(Node), oldrun->size, fp);
+					fclose(fp);
+					oldrun->count = oldrun->size;
+					oldrun->start = h->array[i * oldrun->size].key;
+					oldrun->end = h->array[(i + 1) * oldrun->size - 1].key;
+					//之后要更新这个bloom
+					oldrun->bloom = NULL;
+				}
+				if(destlavel->count == destlevel->size){
+					//if there is no space for the new array, push the least visited run to the next level
+					Run pushtonext = PopRun(destlevel);
+					if(origin <= 8){
+						Merge(Dest.next, (origin + 2), levelsize, filtered,
+							pushtonext->count, (pushtonext->size * levelsize), pushtonext->array, pushtonext->bloom);
+					}else if (orgin == 9){
+						Merge(Dest.next, (origin + 2), 1, filtered,
+							pushtonext->count, (pushtonext->size * levelsize), pushtonext->array, pushtonext->bloom);
+					}else{
+						printf("No more entries in this LSM tree.");
+					}					
+				}
+				//insert the run directly to the level then
+				char filename[14] = "L";
+				char levelnum[2];
+				itoa((origin + 1), levelnum, 10);
+				strcat(filename, levelnum);
+				strcat(filename, "N");
+				char runnum[10];
+				itoa(destlevel->arrival, runnum, 10);
+				strcat(filename, runnum);
+				FILE *fp = fopen(filename, "wt");
+				fwrite(h->array[j*oldrun->size], sizeof(Node), (h->count - j*oldrun->size), fp);
+				//之后需要更新bloom
+				InsertRun(destlevel, (h->count - j*oldrun->size), oldrun->size,
+					h->array[j*oldrun->size].key, h->array[h->count - 1].key, filename, bloom);
+			}
 		}
 	}
 }
