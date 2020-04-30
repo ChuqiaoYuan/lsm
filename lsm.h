@@ -37,6 +37,7 @@ typedef struct Level{
 	int count;
 	int size;
 	bool filtered;
+	int arrival;
 } Level;
 
 typedef struct LevelNode{

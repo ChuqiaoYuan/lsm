@@ -12,6 +12,7 @@ Level *CreateLevel(int size, bool filtered){
 	level->size = size;
 	level->filtered = filtered;
 	level->count = 0;
+	level->arrival = 0;
 	level->array = (Run *) malloc(size * sizeof(Run));
 	if(level->array == NULL){
 		printf("There is not enough memory for the array of runs.")
@@ -69,6 +70,7 @@ void InsertRun(Level *level, int count, int size, int start, int end, bool filte
 	level->array[level->count].bloom = bloom;
 	LevelHeapifyBottomTop(level, level->count);
 	level->count += 1;
+	level->arrival += 1;
 }
 
 Run PopRun(Level *level){
