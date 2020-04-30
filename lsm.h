@@ -43,7 +43,7 @@ typedef struct Level{
 typedef struct LevelNode{
 	Level *level;
 	int number;
-	Level *next;
+	LevelNode *next;
 }
 
 //typedef struct FilteredRun{
