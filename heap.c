@@ -93,20 +93,65 @@ void HeapifyBottomTop(Heap *h, int index){
 	}
 }
 
-void InsertKey(Heap *h, int key, int value, bool flag){
-	int position = GetKeyPos(h, key);
-	if(position != -1){
-		h->array[position].value = value;
-		h->array[position].flag = flag;
-	}else{
-		if(h->count < h->size){
-			h->array[h->count].key = key;
-			h->array[h->count].value = value;
-			h->array[h->count].flag = flag;
-			HeapifyBottomTop(h, h->count);
-			h->count += 1;
-		}
+void HeapifyTopBottom(Heap *h, int parent){
+	int left = parent * 2 + 1;
+	int right = parent * 2 + 1;
+	int min;
+	Node temp;
+	if(left >= h->count){
+		left = -1;
 	}
+	if(right >= h->count){
+		rihgt = -1;
+	}
+	if((left > 0) && (h->array[left].key < h->array[parent].key)){
+		min = left;
+	}else{
+		min = parent;
+	}
+	if((right > 0) && (h->array[right].key < h->array[min].key)){
+		min = right;
+	}
+	if(min != parent){
+		temp = h->array[min];
+		h->array[min] = h->array[parent];
+		h->array[parent] = temp;
+		HeapifyTopBottom(h, min);
+	}
+}
+
+void InsertKey(Heap *h, int key, int value, bool flag){
+	//int position = GetKeyPos(h, key);
+	//if(position != -1){
+	//	h->array[position].value = value;
+	//	h->array[position].flag = flag;
+	//}else{
+		//if(h->count < h->size){
+		h->array[h->count].key = key;
+		h->array[h->count].value = value;
+		h->array[h->count].flag = flag;
+		HeapifyBottomTop(h, h->count);
+		h->count += 1;
+		//}
+	//}
+}
+
+Node PopMin(Heap *h){
+	Node pair;
+	pair = h->array[0];
+	h->array[0] = h->array[h->count - 1];
+	h->count -= 1;
+	HeapifyTopBottom(h, 0);
+	return pair;
+}
+
+Node *HeapSort(Heap *h){
+	int i;
+	Node *sortedarray = (Node *) malloc(h->size * sizeof(Node));
+	for(i = 0; i < h->size; i++){
+		sortedarray[i] = PopMin(h);
+	}
+	return sortedarray;
 }
 
 void PrintNode(Heap *h){
@@ -115,6 +160,7 @@ void PrintNode(Heap *h){
 		printf("key %d value %d\n", h->array[i].key, h->array[i].value);
 	}
 }
+
 void ClearHeap(Heap *h){
 	free(h->array);
 	free(h);
