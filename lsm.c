@@ -146,12 +146,10 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					fread(topush, sizeof(Node), pushtonext.count, fp);
 					fclose(fp);
 					if(origin <= 1){
-						//Merge(Dest->next, (origin + 2), levelsize, filtered,
-						Merge(Current->next, (origin + 2), levelsize, filtered,
+						Merge(Current->next, (origin + 1), levelsize, filtered,
 							pushtonext.count, (pushtonext.size * levelsize), topush, pushtonext.bloom);
 					}else if (origin == 2){
-						//Merge(Dest->next, (origin + 2), 1, filtered,
-						Merge(Current->next, (origin + 2), 1, filtered,
+						Merge(Current->next, (origin + 1), 1, filtered,
 							pushtonext.count, (pushtonext.size * levelsize * (levelsize - 1)), topush, pushtonext.bloom);
 					}else{
 						printf("No more entries in this LSM tree.");
@@ -396,10 +394,10 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					fread(topush, sizeof(Node), pushtonext.count, fp);
 					fclose(fp);
 					if(origin <= 1){
-						Merge(Current->next, (origin + 2), levelsize, filtered,
+						Merge(Current->next, (origin + 1), levelsize, filtered,
 							pushtonext.count, (pushtonext.size * levelsize), topush, pushtonext.bloom);
 					}else if (origin == 2){
-						Merge(Current->next, (origin + 2), 1, filtered,
+						Merge(Current->next, (origin + 1), 1, filtered,
 							pushtonext.count, (pushtonext.size * levelsize * (levelsize - 1)), topush, pushtonext.bloom);
 					}else{
 						printf("No more entries in this LSM tree.");
