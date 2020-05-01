@@ -18,11 +18,13 @@ LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr){
 	//后面要加filtered runs with bloom filters
 	//double threshold = 0.05; //这个地方后面要怎么设计可以好好想想，是否可以让它变成一个tunable knob
 	//int filtered = int((log(threshold) - log(fpr))/log(T)) + 1;
+	return lsm;
 }
 
 void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 	int runcount, int runsize, Node *sortedrun, BloomFilter *bloom){
 	//if the destination level does not exist, initiate a new level and insert the run
+	//printf("origin %d levelsize %d runcount %d runsize %d \n", origin, levelsize, runcount, runsize);
 	if(Dest == NULL){
 		Dest = (LevelNode *) malloc(sizeof(LevelNode));
 		Level *destlevel = CreateLevel(levelsize, filtered);
@@ -350,6 +352,7 @@ void PrintStats(LSMtree *lsm){
 		int levelnum = currentlevelnode->number;
 		int currentcount = 0;
 		Level *currentlevel = currentlevelnode->level;
+		printf("Level %d", levelnum);
 		for(i = 0; i < currentlevel->count; i++){
 			Run currentrun = currentlevel->array[i];
 			currentcount += currentrun.count;
@@ -372,11 +375,15 @@ void PrintStats(LSMtree *lsm){
 }
 
 int main(){
+	//需要一句一句debug, 注意测试到尽可能多的函数，尽可能多的if分句
 	LSMtree *lsm = CreateLSM(3, 3, 0.001);
-	//Put(lsm, 1, 2, true);
-	//Put(lsm, 5, 10, true);
-	//Put(lsm, 3, 6, true);
-	//Put(lsm, 4, 8, true);
+	Put(lsm, 1, 2, true);
+	Put(lsm, 5, 10, true);
+	Put(lsm, 3, 6, true);
+	Put(lsm, 4, 8, true);
+	printf("Buffer content \n");
+	PrintNode(lsm->buffer);
+	printf("\n");
 	PrintStats(lsm);
 	return 0;
 }
