@@ -102,7 +102,7 @@ void HeapifyTopBottom(Heap *h, int parent){
 		left = -1;
 	}
 	if(right >= h->count){
-		rihgt = -1;
+		right = -1;
 	}
 	if((left > 0) && (h->array[left].key < h->array[parent].key)){
 		min = left;
