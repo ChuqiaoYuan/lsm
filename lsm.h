@@ -32,7 +32,7 @@ typedef struct Run{
 	int start;
 	int end;
 	bool filtered;
-	char *fencepointer;
+	int fencepointer;
 	BloomFilter *bloom;
 } Run;
 
@@ -84,7 +84,7 @@ typedef struct LevelNode{
 typedef struct LSMtree{
 	Heap *buffer;
 	int T;
-	LevelNode *L1;
+	LevelNode *L0;
 } LSMtree;
 
 //declaration for heap.c
@@ -100,7 +100,7 @@ void ClearHeap(Heap *h);
 Level *CreateLevel(int size, bool filtered);
 void LevelHeapifyBottomTop(Level *level, int index);
 void LevelHeapifyTopBottom(Level *level, int parent);
-void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, char *name, BloomFilter *bloom);
+void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, int number, BloomFilter *bloom);
 Run PopRun(Level *level);
 void IncreaseRunVisited(Level *level, int index, int visited);
 
