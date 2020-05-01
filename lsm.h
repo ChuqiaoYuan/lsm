@@ -93,7 +93,6 @@ int GetKeyPos(Heap *h, int key);
 void HeapifyBottomTop(Heap *h, int index);
 void InsertKey(Heap *h, int key, int value, bool flag);
 Node PopMin(Heap *h);
-Node *HeapSort(Heap *h);
 void PrintNode(Heap *h);
 void ClearHeap(Heap *h);
 

@@ -145,15 +145,6 @@ Node PopMin(Heap *h){
 	return pair;
 }
 
-Node *HeapSort(Heap *h){
-	int i;
-	Node *sortedarray = (Node *) malloc(h->size * sizeof(Node));
-	for(i = 0; i < h->size; i++){
-		sortedarray[i] = PopMin(h);
-	}
-	return sortedarray;
-}
-
 void PrintNode(Heap *h){
 	int i;
 	for(i=0; i<h->count; i++){

@@ -33,6 +33,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 		FILE *fp = fopen(filename, "wt");
 		fwrite(sortedrun, sizeof(Node), runcount, fp);
 		fclose(fp);
+		free(sortedrun);
 		InsertRun(destlevel, runcount, runsize, start, end, filtered, filename, bloom);
 		Dest->level = destlevel;
 		Dest->number = origin + 1;
@@ -90,6 +91,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 				FILE *fp = fopen(filename, "wt");
 				fwrite(sortedrun, sizeof(Node), runcount, fp);
 				fclose(fp);
+				free(sortedrun);
 				InsertRun(destlevel, runcount, runsize, start, end, filtered, filename, bloom);
 			}else{
 				//if there is no space for another run, merge this run with another existing run
@@ -116,6 +118,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 					FILE *fp = fopen(oldrun.fencepointer, "wt");
 					fwrite(newarray, sizeof(Node), (oldrun.count + runcount), fp);
 					fclose(fp);
+					free(newarray);
 					oldrun.count = oldrun.count + runcount;
 					oldrun.start = newarray[0].key;
 					oldrun.end = newarray[oldrun.count + runcount - 1].key;
@@ -175,6 +178,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 					FILE *fpw = fopen(filename, "wt");
 					fwrite(&newarray[oldrun.size], sizeof(Node), (oldrun.count + runcount - oldrun.size), fpw);
 					fclose(fpw);
+					free(newarray);
 					//bloom之后肯定要更新
 					InsertRun(destlevel, (oldrun.count + runcount - oldrun.size), oldrun.size, 
 						newarray[oldrun.size].key, newarray[oldrun.count + runcount - 1].key, filtered, filename, bloom);
@@ -264,6 +268,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 						oldrun.bloom = NULL;
 					}
 				}
+				ClearHeap(h);
 			}else{
 				//existing runs can not hold all the keys
 				for(i = 0; i < j; i++){
@@ -303,6 +308,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 				//之后需要更新bloom
 				InsertRun(destlevel, (h->count - j * oldrun.size), oldrun.size,
 					h->array[j * oldrun.size].key, h->array[h->count - 1].key, filtered, filename, bloom);
+				ClearHeap(h);
 			}
 		}
 	}
@@ -322,8 +328,11 @@ void Put(LSMtree *lsm, int key, int value, bool flag){
 			InsertKey(buffer, key, value, flag);
 		}else if(buffer->count == buffer->size){
 			//clear the buffer and get the sorted run
-			Node *sortedrun;
-			sortedrun = HeapSort(buffer);
+			int i;
+			Node *sortedrun = (Node *) malloc(buffer->size * sizeof(Node));
+			for(i = 0; i < buffer->size; i++){
+				sortedrun[i] = PopMin(buffer);
+			}
 			//merge this sorted run into level 1
 			Merge(lsm->L1, 0, (lsm->T - 1), false, 
 				buffer->size, buffer->size, sortedrun, NULL);
