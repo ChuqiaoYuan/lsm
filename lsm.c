@@ -373,10 +373,10 @@ void PrintStats(LSMtree *lsm){
 
 int main(){
 	LSMtree *lsm = CreateLSM(3, 3, 0.001);
-	Put(lsm, 1, 2, true);
-	Put(lsm, 5, 10, true);
-	Put(lsm, 3, 6, true);
-	Put(lsm, 4, 8, true);
+	//Put(lsm, 1, 2, true);
+	//Put(lsm, 5, 10, true);
+	//Put(lsm, 3, 6, true);
+	//Put(lsm, 4, 8, true);
 	PrintStats(lsm);
 	return 0;
 }
