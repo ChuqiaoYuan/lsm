@@ -12,7 +12,6 @@ Level *CreateLevel(int size, bool filtered){
 	level->size = size;
 	level->filtered = filtered;
 	level->count = 0;
-	level->arrival = 0;
 	level->array = (Run *) malloc(size * sizeof(Run));
 	if(level->array == NULL){
 		printf("There is not enough memory for the array of runs.");
@@ -21,6 +20,7 @@ Level *CreateLevel(int size, bool filtered){
 	return level;
 }
 
+/*
 void LevelHeapifyBottomTop(Level *level, int index){
 	Run temp;
 	int parent = (index-1) / 2;
@@ -58,33 +58,24 @@ void LevelHeapifyTopBottom(Level *level, int parent){
 		LevelHeapifyTopBottom(level, min);
 	}
 }
+*/
 
-void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, int number, BloomFilter *bloom){
-	level->array[level->count].visited = 0;
+void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, BloomFilter *bloom){
 	level->array[level->count].count = count;
 	level->array[level->count].size = size;
 	level->array[level->count].start = start;
 	level->array[level->count].end = end;
 	level->array[level->count].filtered = filtered;
-	level->array[level->count].fencepointer = number;
+	level->array[level->count].fencepointer = level->count;
 	level->array[level->count].bloom = bloom;
-	LevelHeapifyBottomTop(level, level->count);
 	level->count += 1;
-	level->arrival += 1;
 }
 
 Run PopRun(Level *level){
 	Run run;
-	run = level->array[0];
-	level->array[0] = level->array[level->count - 1];
+	run = level->array[level->count - 1];
 	level->count -= 1;
-	LevelHeapifyTopBottom(level, 0);
 	return run;
-}
-
-void IncreaseRunVisited(Level *level, int index, int visited){
-	level->array[index].visited = visited;
-	LevelHeapifyTopBottom(level, index);
 }
 
 

@@ -34,11 +34,11 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 		int start = sortedrun[0].key;
 		int end = sortedrun[runcount - 1].key;
 		char filename[14];
-		sprintf(filename, "L%dN%d", (origin+1), destlevel->arrival);
+		sprintf(filename, "L%dN%d", (origin+1), destlevel->count);
 		FILE *fp = fopen(filename, "wt");
 		fwrite(sortedrun, sizeof(Node), runcount, fp);
 		fclose(fp);
-		InsertRun(destlevel, runcount, runsize, start, end, filtered, destlevel->arrival, bloom);
+		InsertRun(destlevel, runcount, runsize, start, end, filtered, bloom);
 		New->level = destlevel;
 		New->number = origin + 1;
 		New->next = NULL;
@@ -93,11 +93,11 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				int start = sortedrun[0].key;
 				int end = sortedrun[runcount - 1].key;
 				char filename[14];
-				sprintf(filename, "L%dN%d", (origin+1), destlevel->arrival);
+				sprintf(filename, "L%dN%d", (origin+1), destlevel->count);
 				FILE *fp = fopen(filename, "wt");
 				fwrite(sortedrun, sizeof(Node), runcount, fp);
 				fclose(fp);
-				InsertRun(destlevel, runcount, runsize, start, end, filtered, destlevel->arrival, bloom);
+				InsertRun(destlevel, runcount, runsize, start, end, filtered, bloom);
 			}else{
 				//if there is no space for another run, merge this run with another existing run
 				if(minpos != -1){
@@ -191,13 +191,13 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 
 					//插入新的run
 					char filename[14];
-					sprintf(filename, "L%dN%d", (origin+1), destlevel->arrival);
+					sprintf(filename, "L%dN%d", (origin+1), destlevel->count);
 					FILE *fpw = fopen(filename, "wt");
 					fwrite(&newarray[oldrun.size], sizeof(Node), (oldrun.count + runcount - oldrun.size), fpw);
 					fclose(fpw);
 					//bloom之后肯定要更新
 					InsertRun(destlevel, (oldrun.count + runcount - oldrun.size), oldrun.size, 
-						newarray[oldrun.size].key, newarray[oldrun.count + runcount - 1].key, filtered, destlevel->arrival, bloom);
+						newarray[oldrun.size].key, newarray[oldrun.count + runcount - 1].key, filtered, bloom);
 				}
 			}
 		}else{
@@ -406,7 +406,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 
 				//insert the run directly to the level then
 				char filename[14];
-				sprintf(filename, "L%dN%d", (origin+1), destlevel->arrival);
+				sprintf(filename, "L%dN%d", (origin+1), destlevel->count);
 				Run oldrun = destlevel->array[0];
 				FILE *fp = fopen(filename, "wt");
 				fwrite(&newarray[j * oldrun.size], sizeof(Node), (c - j*oldrun.size), fp);
@@ -426,7 +426,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 
 				//之后需要更新bloom
 				InsertRun(destlevel, (c - j * oldrun.size), oldrun.size,
-					newarray[j * oldrun.size].key, newarray[c- 1].key, filtered, destlevel->arrival, bloom);
+					newarray[j * oldrun.size].key, newarray[c- 1].key, filtered, bloom);
 				//ClearHeap(h);
 			}
 		}
@@ -519,7 +519,10 @@ int main(){
 	Put(lsm, 20, 40, true);
 	Put(lsm, 2, 4, true);
 	Put(lsm, 9, 18, true);
-	Put(lsm, 14, 28, true);
+	Put(lsm, 52, 104, true);
+	Put(lsm, 103, 206, true);
+	Put(lsm, 94, 188, true);
+	//Put(lsm, 5, 11, true);
 	PrintNode(lsm->buffer);
 	printf("\n");
 	PrintStats(lsm);

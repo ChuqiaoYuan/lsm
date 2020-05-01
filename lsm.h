@@ -26,7 +26,6 @@ typedef struct BloomFilter{
 } BloomFilter;
 
 typedef struct Run{
-	int visited;
 	int count;
 	int size;
 	int start;
@@ -41,7 +40,6 @@ typedef struct Level{
 	int count;
 	int size;
 	bool filtered;
-	int arrival;
 } Level;
 
 typedef struct LevelNode{
@@ -98,11 +96,11 @@ void ClearHeap(Heap *h);
 
 //declaration for level.c
 Level *CreateLevel(int size, bool filtered);
-void LevelHeapifyBottomTop(Level *level, int index);
-void LevelHeapifyTopBottom(Level *level, int parent);
-void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, int number, BloomFilter *bloom);
+//void LevelHeapifyBottomTop(Level *level, int index);
+//void LevelHeapifyTopBottom(Level *level, int parent);
+void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, BloomFilter *bloom);
 Run PopRun(Level *level);
-void IncreaseRunVisited(Level *level, int index, int visited);
+//void IncreaseRunVisited(Level *level, int index, int visited);
 
 //declaration for lsm.c
 LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr);
