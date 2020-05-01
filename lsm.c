@@ -28,17 +28,11 @@ LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr){
 void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 	int runcount, int runsize, Node *sortedrun, BloomFilter *bloom){
 	//if the destination level does not exist, initiate a new level and insert the run
-	//printf("origin %d levelsize %d runcount %d runsize %d \n", origin, levelsize, runcount, runsize);
 	if(Current->next == NULL){
 		LevelNode *New = (LevelNode *) malloc(sizeof(LevelNode));
 		Level *destlevel = CreateLevel(levelsize, filtered);
 		int start = sortedrun[0].key;
 		int end = sortedrun[runcount - 1].key;
-
-		//在子函数里分配的内存空间，出了子函数这部分内存空间就被free, 随便指向其他内容
-		//所以我传的这个指针之后不再指向这个字符串，它被随便分配给其他程序了
-		//所以不能在这里面分配内存啊TT
-
 		char filename[14];
 		sprintf(filename, "L%dN%d", (origin+1), destlevel->arrival);
 		FILE *fp = fopen(filename, "wt");
@@ -51,16 +45,12 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 		New->number = origin + 1;
 		New->next = NULL;
 		Current->next = New;
-
-		//printf("test %d %d %d\n", Current->next->number, Current->next->level->count, Current->next->level->size);
-		//printf("filename %s \n", Current->next->level->array[0].fencepointer);
 	}else{
 		int i;
 		int j = 0;
 		int min = INT_MAX;
 		int minpos = -1;
 		Level *destlevel = Current->next->level;
-		//Level *destlevel = Dest->level;
 		int *distance = (int *) malloc(destlevel->count * sizeof(int));
 		int *overlap = (int *) malloc(destlevel->count * sizeof(int));
 		int start = sortedrun[0].key;
@@ -346,9 +336,11 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				//insert the run directly to the level then
 				char filename[14];
 				sprintf(filename, "L%dN%d", (origin+1), destlevel->arrival);
-				FILE *fp = fopen(filename, "wt");
 				Run oldrun = destlevel->array[0];
+				FILE *fp = fopen(filename, "wt");
 				fwrite(&h->array[j * oldrun.size], sizeof(Node), (h->count - j*oldrun.size), fp);
+				fclose(fp);
+
 				//之后需要更新bloom
 				InsertRun(destlevel, (h->count - j * oldrun.size), oldrun.size,
 					h->array[j * oldrun.size].key, h->array[h->count - 1].key, filtered, destlevel->arrival, bloom);
@@ -412,7 +404,6 @@ void PrintStats(LSMtree *lsm){
 			}
 			printf("a run has ended. \n");
 		}
-		printf("\n");
 		printf("There are %d pairs on Level %d. \n\n", currentcount, levelnum);
 		total += currentcount;
 		currentlevelnode = currentlevelnode->next;
@@ -426,11 +417,12 @@ int main(){
 	Put(lsm, 1, 2, true);
 	Put(lsm, 5, 10, true);
 	Put(lsm, 3, 6, true);
-	Put(lsm, 4, 8, true);
 	Put(lsm, 10, 20, true);
+	Put(lsm, 4, 8, true);
 	Put(lsm, 43, 86, true);
 	Put(lsm, 20, 40, true);
-	printf("Pairs on buffer \n");
+	Put(lsm, 2, 4, true);
+	Put(lsm, 9, 18, true);
 	PrintNode(lsm->buffer);
 	printf("\n");
 	PrintStats(lsm);

@@ -148,8 +148,9 @@ Node PopMin(Heap *h){
 void PrintNode(Heap *h){
 	int i;
 	for(i=0; i<h->count; i++){
-		printf("key %d value %d\n", h->array[i].key, h->array[i].value);
+		printf("%d:%d:L0 ", h->array[i].key, h->array[i].value);
 	}
+	printf("\nThere are %d pairs on buffer. \n", h->count);
 }
 
 void ClearHeap(Heap *h){
