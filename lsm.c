@@ -175,7 +175,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 						Merge(Current->next, (origin + 1), 1, filtered,
 							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, pushtonext.bloom);
 					}else{
-						printf("No more entries in this LSM tree.");
+						printf("No more entries in this LSM tree. Some data may be lost.");
 					}
 
 					Run oldrun = destlevel->array[destlevel->count - 1];
@@ -399,7 +399,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 						Merge(Current->next, (origin + 1), 1, filtered,
 							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, pushtonext.bloom);
 					}else{
-						printf("No more entries in this LSM tree.");
+						printf("No more entries in this LSM tree. Some data may be lost. \n");
 					}					
 				}
 
@@ -529,7 +529,46 @@ int main(){
 	Put(lsm, 39, 78, true);
 	Put(lsm, 10, 21, true);
 	Put(lsm, 44, 88, true);
-	
+	Put(lsm, 6, 12, true);
+	Put(lsm, 34, 68, true);
+	Put(lsm, 106, 212, true);
+	Put(lsm, 41, 82, true);
+	Put(lsm, 14, 28, true);
+	Put(lsm, 23, 46, true);
+	Put(lsm, 30, 61, true);
+	Put(lsm, 17, 34, true);
+	Put(lsm, 57, 114, true);
+	Put(lsm, 66, 132, true);
+	Put(lsm, 2, 5, true);
+	Put(lsm, 22, 44, true);
+	Put(lsm, 29, 58, true);
+	Put(lsm, 18, 36, true);
+	Put(lsm, 31, 62, true);
+	Put(lsm, 67, 134, true);
+	Put(lsm, 55, 110, true);
+	Put(lsm, 27, 54, true);
+	Put(lsm, 90, 180, true);
+	Put(lsm, 4, 9, true);
+	Put(lsm, 88, 176, true);
+	Put(lsm, 53, 106, true);
+	Put(lsm, 61, 132, true);
+	Put(lsm, 93, 186, true);
+	Put(lsm, 13, 26, true);
+	Put(lsm, 71, 142, true);
+	Put(lsm, 59, 118, true);
+	Put(lsm, 97, 194, true);
+	Put(lsm, 11, 22, true);
+	Put(lsm, 110, 220, true);
+	Put(lsm, 47, 94, true);
+	Put(lsm, 93, 187, true);
+	Put(lsm, 39, 78, true);
+	Put(lsm, 56, 112, true);
+	Put(lsm, 58, 116, true);
+	Put(lsm, 85, 170, true);
+	Put(lsm, 95, 190, true);
+	Put(lsm, 19, 38, true);
+	Put(lsm, 3, 7, true);
+
 	PrintNode(lsm->buffer);
 	printf("\n");
 	PrintStats(lsm);
