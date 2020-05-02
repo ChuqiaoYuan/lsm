@@ -89,7 +89,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 		if(j == 0){
 			//if there is no run with overlapping keys in the destination level
 			if(destlevel->count < destlevel->size){
-				printf("If 6 \n");
+				//printf("If 6 \n");
 				//if there is still space for another run, insert this run directly
 				int start = sortedrun[0].key;
 				int end = sortedrun[runcount - 1].key;
@@ -102,7 +102,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 			}else{
 				//if there is no space for another run, merge this run with another existing run
 				if(minpos != -1){
-					printf("If 1 \n");
+					//printf("If 1 \n");
 					//there is still space in this run to merge something into
 					Run oldrun = destlevel->array[minpos];
 					Node *newarray = (Node *) malloc((oldrun.count + runcount) * sizeof(Node));
@@ -160,7 +160,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				}else{
 					//there is no space in this run to merge something into 
 					// so minpos is -1 here
-					printf("If 2\n");
+					//printf("If 2\n");
 					Run pushtonext = PopRun(destlevel);
 					Node *topush = (Node *) malloc(pushtonext.count * sizeof(Node));
 					char name[14];
@@ -309,7 +309,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 			}
 			//printf("numrun %d j %d\n", numrun, j);
 			if(numrun <= j){
-				printf("If 3\n");
+				//printf("If 3\n");
 				//existing runs can hold these keys
 				for(i = 0; (i < (numrun - 1)); i++){
 					Run oldrun = destlevel->array[overlap[i]];
@@ -350,7 +350,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					}
 				}
 			}else{
-				printf("If 5\n");
+				//printf("If 5\n");
 				//existing runs can not hold all the keys
 				for(i = 0; i < j; i++){
 					Run oldrun = destlevel->array[overlap[i]];
@@ -506,8 +506,12 @@ void PrintStats(LSMtree *lsm){
 	printf("There are %d pairs on the LSM-tree in total. \n", total);
 }
 
+void ClearLSM(LSMtree *lsm){
+	ClearHeap(lsm->buffer);
+	free(lsm->L0);
+}
+
 int main(){
-	//需要一句一句debug, 注意测试到尽可能多的函数，尽可能多的if分句
 	LSMtree *lsm = CreateLSM(2, 3, 0.001);
 	Put(lsm, 1, 2, true);
 	Put(lsm, 5, 10, true);
@@ -567,11 +571,12 @@ int main(){
 	Put(lsm, 85, 170, true);
 	Put(lsm, 95, 190, true);
 	Put(lsm, 19, 38, true);
-	Put(lsm, 3, 7, true);
+	//Put(lsm, 3, 7, true);
 
 	PrintNode(lsm->buffer);
 	printf("\n");
 	PrintStats(lsm);
+	ClearLSM(lsm);
 	return 0;
 }
 

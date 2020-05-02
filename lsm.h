@@ -108,7 +108,7 @@ void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
 	int runcount, int runsize, Node *sortedrun, BloomFilter *bloom);
 void Put(LSMtree *lsm, int key, int value, bool flag);
 void PrintStats(LSMtree *lsm);
-
+void ClearLSM(LSMtree *lsm);
 
 
 
