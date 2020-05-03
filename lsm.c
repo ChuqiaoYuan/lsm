@@ -35,6 +35,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 		sprintf(filename, "L%dN%d", (origin+1), destlevel->count);
 		FILE *fp = fopen(filename, "wt");
 		fwrite(sortedrun, sizeof(Node), runcount, fp);
+		//printf("key1 %d key2 %d \n", sortedrun[0].key, sortedrun[1].key);
 		fclose(fp);
 		if(targetfpr < 0.3){
 			double numbits = - 2 * runcount * log(targetfpr);
@@ -44,8 +45,10 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 			BloomFilter *filter = CreateBloomFilter(k, m);
 			int i;
 			for(i = 0; i < runcount; i++){
-				InsertEntry(filter, sortedrun[i - 1].key);
+				//printf("%d ", sortedrun[i-1].key);
+				InsertEntry(filter, sortedrun[i].key);
 			}
+			//printf("\n");
 			destlevel->filters[destlevel->count] = *filter;
 		}
 		InsertRun(destlevel, runcount, runsize, start, end);
@@ -116,7 +119,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					int k = (int)numhashes;
 					BloomFilter *filter = CreateBloomFilter(k, m);
 					for(i = 0; i < runcount; i++){
-						InsertEntry(filter, sortedrun[i - 1].key);
+						InsertEntry(filter, sortedrun[i].key);
 					}
 					destlevel->filters[destlevel->count] = *filter;
 				}
@@ -160,7 +163,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						int k = (int)numhashes;
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						for(i = 0; i < (oldrun.count + runcount); i++){
-							InsertEntry(filter, newarray[i - 1].key);
+							InsertEntry(filter, newarray[i].key);
 						}
 						destlevel->filters[minpos] = *filter;
 				}
@@ -245,7 +248,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						int k = (int)numhashes;
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						for(i = 0; i < oldrun.size; i++){
-							InsertEntry(filter, newarray[i - 1].key);
+							InsertEntry(filter, newarray[i].key);
 						}
 						destlevel->filters[destlevel->count - 1] = *filter;
 					}
@@ -270,7 +273,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						int k = (int)numhashes;
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						for(i = 0; i < (oldrun.count + runcount - oldrun.size); i++){
-							InsertEntry(filter, newarray[oldrun.size + i - 1].key);
+							InsertEntry(filter, newarray[oldrun.size + i].key);
 						}
 						destlevel->filters[destlevel->count - 1] = *filter;
 					}
@@ -381,7 +384,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						int ii;
 						for(ii = 0; ii < oldrun.size; ii++){
-							InsertEntry(filter, newarray[i * oldrun.size + ii -1].key); //注意array其实
+							InsertEntry(filter, newarray[i * oldrun.size + ii].key); //注意array其实
 						}
 						destlevel->filters[overlap[i]] = *filter;
 					}
@@ -443,7 +446,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						int ii;
 						for(ii = 0; ii < oldrun.size; ii++){
-							InsertEntry(filter, newarray[i * oldrun.size + ii -1].key); //注意array其实
+							InsertEntry(filter, newarray[i * oldrun.size + ii].key); //注意array其实
 						}
 						destlevel->filters[overlap[i]] = *filter;
 					}
@@ -503,7 +506,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					int k = (int)numhashes;
 					BloomFilter *filter = CreateBloomFilter(k, m);
 					for(i = 0; i < (c - j*oldrun.size); i++){
-						InsertEntry(filter, newarray[j * oldrun.size + i - 1].key); //注意array其实
+						InsertEntry(filter, newarray[j * oldrun.size + i].key); //注意array其实
 					}
 					destlevel->filters[destlevel->count] = *filter;
 				}
@@ -579,12 +582,18 @@ void Get(LSMtree *lsm, int key, char *result){
 		}else{
 		}
 	}else{
+		printf("Here it is 1\n");
 		LevelNode *current = lsm->L0->next;
+		bool find = false;
 		while(current != NULL){
+			printf("Here it is 2\n");
 			Level *exploringlevel = current->level;
 			for(i = 0; i < exploringlevel->count; i++){
+				printf("Here it is 3\n");
 				if((exploringlevel->array[i].start <= key) && (exploringlevel->array[i].end >= key)){
+					printf("Here it is 4\n");
 					if(LookUp(&exploringlevel->filters[i], key)){
+						printf("Here it is 5\n");
 						Node *currentarray = (Node *) malloc(exploringlevel->array[i].count * sizeof(Node));
 						char filename[14];
 						sprintf(filename, "L%dN%d", current->number, i);
@@ -598,6 +607,8 @@ void Get(LSMtree *lsm, int key, char *result){
 							if(currentarray[left].flag){
 								int val = currentarray[left].value;
 								sprintf(result, "%d", val);
+								find = true;
+								break;
 							}else{
 								return;
 							}
@@ -605,6 +616,8 @@ void Get(LSMtree *lsm, int key, char *result){
 							if(currentarray[right].flag){
 								int val = currentarray[right].value;
 								sprintf(result, "%d", val);
+								find = true;
+								break;
 							}else{
 								return;
 							}
@@ -614,6 +627,8 @@ void Get(LSMtree *lsm, int key, char *result){
 								if(currentarray[mid].flag){
 									int val = currentarray[mid].value;
 									sprintf(result, "%d", val);
+									find = true;
+									break;
 								}else{
 									return;
 								}
@@ -627,6 +642,9 @@ void Get(LSMtree *lsm, int key, char *result){
 						}
 					}
 				}
+			}
+			if(find){
+				break;
 			}
 			current = current->next;
 		}
@@ -736,9 +754,10 @@ int main(){
 	Put(lsm, 85, 170, true);
 	Put(lsm, 95, 190, true);
 	Put(lsm, 19, 38, true);
+	
 	//Put(lsm, 3, 7, true);
 	char val[16];
-	int key = 95;
+	int key = 93;
 	Get(lsm, key, val);
 	printf("value of key %d is %s \n", key, val);
 	printf("\n");
