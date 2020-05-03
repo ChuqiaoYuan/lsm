@@ -241,6 +241,8 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					fwrite(newarray, sizeof(Node), oldrun.size, fp);
 					fclose(fp);
 
+					//printf("%s \n", newname);
+
 					if(targetfpr < 0.3){
 						double numbits = - 2 * oldrun.size * log(targetfpr);
 						size_t m = (size_t)numbits;
@@ -249,7 +251,9 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						for(i = 0; i < oldrun.size; i++){
 							InsertEntry(filter, newarray[i].key);
+							//printf("%d ", newarray[i].key);
 						}
+						//printf("\n");
 						destlevel->filters[destlevel->count - 1] = *filter;
 					}
 
@@ -266,6 +270,8 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					fwrite(&newarray[oldrun.size], sizeof(Node), (oldrun.count + runcount - oldrun.size), fpw);
 					fclose(fpw);
 
+					//printf("%s \n", filename);
+
 					if(targetfpr < 0.3){
 						double numbits = - 2 * (oldrun.count + runcount - oldrun.size) * log(targetfpr);
 						size_t m = (size_t)numbits;
@@ -274,8 +280,10 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						BloomFilter *filter = CreateBloomFilter(k, m);
 						for(i = 0; i < (oldrun.count + runcount - oldrun.size); i++){
 							InsertEntry(filter, newarray[oldrun.size + i].key);
+							//printf("%d ", newarray[oldrun.size + i].key);
 						}
-						destlevel->filters[destlevel->count - 1] = *filter;
+						//printf("\n");
+						destlevel->filters[destlevel->count] = *filter;
 					}
 
 					InsertRun(destlevel, (oldrun.count + runcount - oldrun.size), oldrun.size, 
@@ -711,6 +719,7 @@ int main(){
 	Put(lsm, 5, 11, true);
 	Put(lsm, 11, 22, true);
 	Put(lsm, 30, 60, true);
+	/*
 	Put(lsm, 40, 80, true);
 	Put(lsm, 120, 240, true);
 	Put(lsm, 39, 78, true);
@@ -754,10 +763,11 @@ int main(){
 	Put(lsm, 85, 170, true);
 	Put(lsm, 95, 190, true);
 	Put(lsm, 19, 38, true);
+	*/
 	
 	//Put(lsm, 3, 7, true);
 	char val[16];
-	int key = 93;
+	int key = 103;
 	Get(lsm, key, val);
 	printf("value of key %d is %s \n", key, val);
 	printf("\n");
