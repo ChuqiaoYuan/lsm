@@ -719,7 +719,6 @@ int main(){
 	Put(lsm, 5, 11, true);
 	Put(lsm, 11, 22, true);
 	Put(lsm, 30, 60, true);
-	/*
 	Put(lsm, 40, 80, true);
 	Put(lsm, 120, 240, true);
 	Put(lsm, 39, 78, true);
@@ -763,11 +762,11 @@ int main(){
 	Put(lsm, 85, 170, true);
 	Put(lsm, 95, 190, true);
 	Put(lsm, 19, 38, true);
-	*/
+	
 	
 	//Put(lsm, 3, 7, true);
 	char val[16];
-	int key = 103;
+	int key = 200;
 	Get(lsm, key, val);
 	printf("value of key %d is %s \n", key, val);
 	printf("\n");
