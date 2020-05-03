@@ -14,14 +14,12 @@ LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr){
 	}
 	lsm->buffer = CreateHeap(buffersize);
 	lsm->T = sizeratio;
-	LevelNode *L0 = (LevelNode *) malloc(sizeof(LevelNode));
-	L0->level = NULL;
-	L0->number = 0;
-	L0->next = NULL;
-	lsm->L0 = L0; 
+	lsm->L0 = (LevelNode *) malloc(sizeof(LevelNode));
+	lsm->L0->level = NULL;
+	lsm->L0->number = 0;
+	lsm->L0->next = NULL;
 	//后面要加filtered runs with bloom filters
-	//double threshold = 0.05; //这个地方后面要怎么设计可以好好想想，是否可以让它变成一个tunable knob
-	//int filtered = int((log(threshold) - log(fpr))/log(T)) + 1;
+	
 	return lsm;
 }
 
