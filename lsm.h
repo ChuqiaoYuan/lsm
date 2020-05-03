@@ -111,5 +111,12 @@ void Put(LSMtree *lsm, int key, int value, bool flag);
 void PrintStats(LSMtree *lsm);
 void ClearLSM(LSMtree *lsm);
 
+//declaration for bloom.c
+unsigned int djb2(int key);
+unsigned int jenkins(int key);
+BloomFilter *CreateBloomFilter(int k, size_t size);
+void InsertEntry(BloomFilter *filter, int key);
+bool LookUp(BloomFilter *filter, int key);
+void ClearBloomFilter(BloomFilter *filter);
 
 

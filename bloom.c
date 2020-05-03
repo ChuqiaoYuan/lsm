@@ -18,7 +18,7 @@ unsigned int djb2(int key){
 	return hash;
 }
 
-unsigned int jenkins(int key) {
+unsigned int jenkins(int key){
 	char _str[16];
 	sprintf(_str, "%d", key);
 	const char *str = &_str[0];
@@ -89,6 +89,7 @@ void ClearBloomFilter(BloomFilter *filter){
 	free(filter);
 }
 
+/*
 int main(){
 	int k = 8;
 	size_t m = 10;
@@ -104,3 +105,4 @@ int main(){
 	}
 	return 0;
 }
+*/
