@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "lsm.h"
 
 #define INT_MAX 2147483647
@@ -18,17 +19,16 @@ LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr){
 	lsm->L0->level = NULL;
 	lsm->L0->number = 0;
 	lsm->L0->next = NULL;
-	//后面要加filtered runs with bloom filters
-	
+	lsm->fpr1 = fpr;
 	return lsm;
 }
 
-void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
-	int runcount, int runsize, Node *sortedrun, BloomFilter *bloom){
+void Merge(LevelNode *Current, int origin, int levelsize,
+	int runcount, int runsize, Node *sortedrun, double targetfpr){
 	//if the destination level does not exist, initiate a new level and insert the run
 	if(Current->next == NULL){
 		LevelNode *New = (LevelNode *) malloc(sizeof(LevelNode));
-		Level *destlevel = CreateLevel(levelsize, filtered);
+		Level *destlevel = CreateLevel(levelsize, targetfpr);
 		int start = sortedrun[0].key;
 		int end = sortedrun[runcount - 1].key;
 		char filename[14];
@@ -36,7 +36,19 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 		FILE *fp = fopen(filename, "wt");
 		fwrite(sortedrun, sizeof(Node), runcount, fp);
 		fclose(fp);
-		InsertRun(destlevel, runcount, runsize, start, end, filtered, bloom);
+		if(targetfpr < 0.3){
+			double numbits = - 2 * runcount * log(targetfpr);
+			size_t m = (size_t)numbits;
+			double numhashes = 0.7 * numbits / runcount;
+			int k = (int)numhashes;
+			BloomFilter *filter = CreateBloomFilter(k, m);
+			int i;
+			for(i = 0; i < runcount; i++){
+				InsertEntry(filter, sortedrun[i - 1].key);
+			}
+			destlevel->filters[destlevel->count] = *filter;
+		}
+		InsertRun(destlevel, runcount, runsize, start, end);
 		New->level = destlevel;
 		New->number = origin + 1;
 		New->next = NULL;
@@ -96,7 +108,19 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				FILE *fp = fopen(filename, "wt");
 				fwrite(sortedrun, sizeof(Node), runcount, fp);
 				fclose(fp);
-				InsertRun(destlevel, runcount, runsize, start, end, filtered, bloom);
+
+				if(targetfpr < 0.3){
+					double numbits = - 2 * runcount * log(targetfpr);
+					size_t m = (size_t)numbits;
+					double numhashes = 0.7 * numbits / runcount;
+					int k = (int)numhashes;
+					BloomFilter *filter = CreateBloomFilter(k, m);
+					for(i = 0; i < runcount; i++){
+						InsertEntry(filter, sortedrun[i - 1].key);
+					}
+					destlevel->filters[destlevel->count] = *filter;
+				}
+				InsertRun(destlevel, runcount, runsize, start, end);
 			}else{
 				//if there is no space for another run, merge this run with another existing run
 				if(minpos != -1){
@@ -109,13 +133,13 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 							newarray[i] = sortedrun[i];
 						}
 						char name[14];
-						sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+						sprintf(name, "L%dN%d", Current->next->number, minpos);
 						FILE *fp = fopen(name, "rt");
 						fread(&newarray[runcount], sizeof(Node), oldrun.count, fp);
 						fclose(fp);
 					}else{
 						char name[14];
-						sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+						sprintf(name, "L%dN%d", Current->next->number, minpos);
 						FILE *fp = fopen(name, "rt");
 						fread(newarray, sizeof(Node), oldrun.count, fp);
 						fclose(fp);
@@ -124,10 +148,22 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 						}
 					}
 					char name[14];
-					sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+					sprintf(name, "L%dN%d", Current->next->number, minpos);
 					FILE *fp = fopen(name, "wt");
 					fwrite(newarray, sizeof(Node), (oldrun.count + runcount), fp);
 					fclose(fp);
+
+					if(targetfpr < 0.3){
+						double numbits = - 2 * (oldrun.count + runcount) * log(targetfpr);
+						size_t m = (size_t)numbits;
+						double numhashes = 0.7 * numbits / (oldrun.count + runcount);
+						int k = (int)numhashes;
+						BloomFilter *filter = CreateBloomFilter(k, m);
+						for(i = 0; i < (oldrun.count + runcount); i++){
+							InsertEntry(filter, newarray[i - 1].key);
+						}
+						destlevel->filters[minpos] = *filter;
+				}
 
 					/*
 					Node *new = (Node *) malloc((oldrun.count + runcount) * sizeof(Node));
@@ -147,9 +183,6 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					oldrun.count += runcount;
 					oldrun.start = newarray[0].key;
 					oldrun.end = newarray[oldrun.count - 1].key;
-					//之后需要更新这个bloom
-					oldrun.bloom = NULL;
-
 					destlevel->array[minpos] = oldrun;
 					/*
 					printf("updated %d %d %d \n", oldrun.count, oldrun.start, oldrun.end);
@@ -162,16 +195,16 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					Run pushtonext = PopRun(destlevel);
 					Node *topush = (Node *) malloc(pushtonext.count * sizeof(Node));
 					char name[14];
-					sprintf(name, "L%dN%d", Current->next->number, pushtonext.fencepointer);
+					sprintf(name, "L%dN%d", Current->next->number, destlevel->count);
 					FILE *fp = fopen(name, "rt");
 					fread(topush, sizeof(Node), pushtonext.count, fp);
 					fclose(fp);
 					if(origin <= 0){
-						Merge(Current->next, (origin + 1), levelsize, filtered,
-							pushtonext.count, pushtonext.size * (levelsize + 1), topush, pushtonext.bloom);
+						Merge(Current->next, (origin + 1), levelsize, 
+							pushtonext.count, pushtonext.size * (levelsize + 1), topush, (targetfpr * (levelsize + 1)));
 					}else if (origin == 1){
-						Merge(Current->next, (origin + 1), 1, filtered,
-							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, pushtonext.bloom);
+						Merge(Current->next, (origin + 1), 1,
+							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, (targetfpr * (levelsize + 1) * levelsize));
 					}else{
 						printf("No more entries in this LSM tree. Some data may be lost.");
 					}
@@ -183,13 +216,13 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 							newarray[i] = sortedrun[i];
 						}
 						char name[14];
-						sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+						sprintf(name, "L%dN%d", Current->next->number, (destlevel->count - 1));
 						FILE *fp = fopen(name, "rt");
 						fread(&newarray[runcount], sizeof(Node), oldrun.count, fp);
 						fclose(fp);
 					}else{
 						char name[14];
-						sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+						sprintf(name, "L%dN%d", Current->next->number, (destlevel->count - 1));
 						FILE *fp = fopen(name, "rt");
 						fread(newarray, sizeof(Node), oldrun.count, fp);
 						fclose(fp);
@@ -200,15 +233,26 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 
 					//更新最末端的run
 					char newname[14];
-					sprintf(newname, "L%dN%d", Current->next->number, oldrun.fencepointer);
+					sprintf(newname, "L%dN%d", Current->next->number, (destlevel->count - 1));
 					fp = fopen(newname, "wt");
 					fwrite(newarray, sizeof(Node), oldrun.size, fp);
 					fclose(fp);
+
+					if(targetfpr < 0.3){
+						double numbits = - 2 * oldrun.size * log(targetfpr);
+						size_t m = (size_t)numbits;
+						double numhashes = 0.7 * numbits / oldrun.size;
+						int k = (int)numhashes;
+						BloomFilter *filter = CreateBloomFilter(k, m);
+						for(i = 0; i < oldrun.size; i++){
+							InsertEntry(filter, newarray[i - 1].key);
+						}
+						destlevel->filters[destlevel->count - 1] = *filter;
+					}
+
 					oldrun.count = oldrun.size;
 					oldrun.start = newarray[0].key;
 					oldrun.end = newarray[oldrun.size - 1].key;
-					//之后需要更新这个bloom
-					oldrun.bloom = NULL;
 
 					destlevel->array[destlevel->count - 1] = oldrun;
 
@@ -218,9 +262,21 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					FILE *fpw = fopen(filename, "wt");
 					fwrite(&newarray[oldrun.size], sizeof(Node), (oldrun.count + runcount - oldrun.size), fpw);
 					fclose(fpw);
-					//bloom之后肯定要更新
+
+					if(targetfpr < 0.3){
+						double numbits = - 2 * (oldrun.count + runcount - oldrun.size) * log(targetfpr);
+						size_t m = (size_t)numbits;
+						double numhashes = 0.7 * numbits / (oldrun.count + runcount - oldrun.size);
+						int k = (int)numhashes;
+						BloomFilter *filter = CreateBloomFilter(k, m);
+						for(i = 0; i < (oldrun.count + runcount - oldrun.size); i++){
+							InsertEntry(filter, newarray[oldrun.size + i - 1].key);
+						}
+						destlevel->filters[destlevel->count - 1] = *filter;
+					}
+
 					InsertRun(destlevel, (oldrun.count + runcount - oldrun.size), oldrun.size, 
-						newarray[oldrun.size].key, newarray[oldrun.count + runcount - 1].key, filtered, bloom);
+						newarray[oldrun.size].key, newarray[oldrun.count + runcount - 1].key);
 				}
 			}
 		}else{
@@ -244,7 +300,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 			oldcount = 0;
 			for(i = 0; i < j; i++){
 				char name[14];
-				sprintf(name, "L%dN%d", Current->next->number, destlevel->array[overlap[i]].fencepointer);
+				sprintf(name, "L%dN%d", Current->next->number, overlap[i]);
 				FILE *fp = fopen(name, "rt");
 				fread(&oldarray[oldcount], sizeof(Node), destlevel->array[overlap[i]].count, fp);
 				fclose(fp);
@@ -312,28 +368,51 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				for(i = 0; (i < (numrun - 1)); i++){
 					Run oldrun = destlevel->array[overlap[i]];
 					char name[14];
-					sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+					sprintf(name, "L%dN%d", Current->next->number, overlap[i]);
 					FILE *fp = fopen(name, "wt");
 					fwrite(&newarray[i * oldrun.size], sizeof(Node), oldrun.size, fp);
 					fclose(fp);
+
+					if(targetfpr < 0.3){
+						double numbits = - 2 * oldrun.size * log(targetfpr); //注意runcount变化
+						size_t m = (size_t)numbits;
+						double numhashes = 0.7 * numbits / oldrun.size;
+						int k = (int)numhashes;
+						BloomFilter *filter = CreateBloomFilter(k, m);
+						int ii;
+						for(ii = 0; ii < oldrun.size; ii++){
+							InsertEntry(filter, newarray[i * oldrun.size + ii -1].key); //注意array其实
+						}
+						destlevel->filters[overlap[i]] = *filter;
+					}
+
 					oldrun.count = oldrun.size;
 					oldrun.start = newarray[i * oldrun.size].key;
 					oldrun.end = newarray[(i + 1) * oldrun.size - 1].key;
-					//之后要更新这个bloom
-					oldrun.bloom = NULL;
 					destlevel->array[overlap[i]] = oldrun;
 				}
 				Run oldrun = destlevel->array[overlap[numrun - 1]];
 				char name[14];
-				sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+				sprintf(name, "L%dN%d", Current->next->number, overlap[numrun - 1]);
 				FILE *fp = fopen(name, "wt");
 				fwrite(&newarray[(numrun - 1) * oldrun.size], sizeof(Node), (c - (numrun - 1) * oldrun.size), fp);
 				fclose(fp);
+
+				if(targetfpr < 0.3){
+					double numbits = - 2 * (c - (numrun - 1) * oldrun.size) * log(targetfpr); //注意runcount变化
+					size_t m = (size_t)numbits;
+					double numhashes = 0.7 * numbits / (c - (numrun - 1) * oldrun.size);
+					int k = (int)numhashes;
+					BloomFilter *filter = CreateBloomFilter(k, m);
+					for(i = 0; i < (c - (numrun - 1) * oldrun.size); i++){
+						InsertEntry(filter, newarray[(numrun - 1) * oldrun.size + i].key); //注意array其实
+					}
+					destlevel->filters[overlap[numrun - 1]] = *filter;
+				}
+
 				oldrun.count = c - (numrun - 1) * oldrun.size;
 				oldrun.start = newarray[(numrun - 1) * oldrun.size].key;
 				oldrun.end = newarray[c - 1].key;
-				//之后要更新这个bloom
-				oldrun.bloom = NULL;
 				destlevel->array[overlap[numrun - 1]] = oldrun;
 
 				if(numrun < j){
@@ -342,8 +421,6 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 						oldrun.count = 0;
 						oldrun.start = INT_MAX + 1;
 						oldrun.end = INT_MAX;
-						oldrun.fencepointer = -1;
-						oldrun.bloom = NULL;
 						destlevel->array[overlap[i]] = oldrun;
 					}
 				}
@@ -353,11 +430,23 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				for(i = 0; i < j; i++){
 					Run oldrun = destlevel->array[overlap[i]];
 					char name[14];
-					sprintf(name, "L%dN%d", Current->next->number, oldrun.fencepointer);
+					sprintf(name, "L%dN%d", Current->next->number, overlap[i]);
 					FILE *fp = fopen(name, "wt");
 					fwrite(&newarray[i * oldrun.size], sizeof(Node), oldrun.size, fp);
 					fclose(fp);
 
+					if(targetfpr < 0.3){
+						double numbits = - 2 * oldrun.size * log(targetfpr); //注意runcount变化
+						size_t m = (size_t)numbits;
+						double numhashes = 0.7 * numbits / oldrun.size;
+						int k = (int)numhashes;
+						BloomFilter *filter = CreateBloomFilter(k, m);
+						int ii;
+						for(ii = 0; ii < oldrun.size; ii++){
+							InsertEntry(filter, newarray[i * oldrun.size + ii -1].key); //注意array其实
+						}
+						destlevel->filters[overlap[i]] = *filter;
+					}
 /*
 
 					Node *b = (Node *) malloc(oldrun.size * sizeof(Node));
@@ -376,8 +465,6 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					oldrun.count = oldrun.size;
 					oldrun.start = newarray[i * oldrun.size].key;
 					oldrun.end = newarray[(i + 1) * oldrun.size - 1].key;
-					//之后要更新这个bloom
-					oldrun.bloom = NULL;
 					destlevel->array[overlap[i]] = oldrun;
 				}
 
@@ -386,16 +473,16 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 					Run pushtonext = PopRun(destlevel);
 					Node *topush = (Node *) malloc(pushtonext.count * sizeof(Node));
 					char name[14];
-					sprintf(name, "L%dN%d", Current->next->number, pushtonext.fencepointer);
+					sprintf(name, "L%dN%d", Current->next->number, destlevel->count);
 					FILE *fp = fopen(name, "rt");
 					fread(topush, sizeof(Node), pushtonext.count, fp);
 					fclose(fp);
 					if(origin <= 0){
-						Merge(Current->next, (origin + 1), levelsize, filtered,
-							pushtonext.count, (pushtonext.size * (levelsize + 1)), topush, pushtonext.bloom);
+						Merge(Current->next, (origin + 1), levelsize, 
+							pushtonext.count, (pushtonext.size * (levelsize + 1)), topush, (targetfpr * (levelsize + 1)));
 					}else if (origin == 1){
-						Merge(Current->next, (origin + 1), 1, filtered,
-							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, pushtonext.bloom);
+						Merge(Current->next, (origin + 1), 1, 
+							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, (targetfpr * (levelsize + 1) * levelsize));
 					}else{
 						printf("No more entries in this LSM tree. Some data may be lost. \n");
 					}					
@@ -408,6 +495,18 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 				FILE *fp = fopen(filename, "wt");
 				fwrite(&newarray[j * oldrun.size], sizeof(Node), (c - j*oldrun.size), fp);
 				fclose(fp);
+
+				if(targetfpr < 0.3){
+					double numbits = - 2 * (c - j*oldrun.size) * log(targetfpr); //注意runcount变化
+					size_t m = (size_t)numbits;
+					double numhashes = 0.7 * numbits / (c - j*oldrun.size);
+					int k = (int)numhashes;
+					BloomFilter *filter = CreateBloomFilter(k, m);
+					for(i = 0; i < (c - j*oldrun.size); i++){
+						InsertEntry(filter, newarray[j * oldrun.size + i - 1].key); //注意array其实
+					}
+					destlevel->filters[destlevel->count] = *filter;
+				}
 
 				/*
 				Node *a = (Node *) malloc((c - j*oldrun.size) * sizeof(Node));
@@ -423,7 +522,7 @@ void Merge(LevelNode *Current, int origin, int levelsize, bool filtered,
 
 				//之后需要更新bloom
 				InsertRun(destlevel, (c - j * oldrun.size), oldrun.size,
-					newarray[j * oldrun.size].key, newarray[c- 1].key, filtered, bloom);
+					newarray[j * oldrun.size].key, newarray[c- 1].key);
 				//ClearHeap(h);
 			}
 		}
@@ -463,8 +562,8 @@ void Put(LSMtree *lsm, int key, int value, bool flag){
 			*/
 			
 
-			Merge(lsm->L0, 0, (lsm->T - 1), false, 
-				buffer->size, buffer->size, sortedrun, NULL);
+			Merge(lsm->L0, 0, (lsm->T - 1), 
+				buffer->size, buffer->size, sortedrun, lsm->fpr1);
 			InsertKey(buffer, key, value, flag);
 		}
 	}
@@ -488,7 +587,7 @@ void PrintStats(LSMtree *lsm){
 			currentcount += currentlevelnode->level->array[i].count;
 			Node *currentarray = (Node *) malloc(currentlevelnode->level->array[i].count * sizeof(Node));
 			char filename[14];
-			sprintf(filename, "L%dN%d", levelnum, currentlevelnode->level->array[i].fencepointer);
+			sprintf(filename, "L%dN%d", levelnum, i);
 			FILE *fp =fopen(filename, "rt");
 			fread(currentarray, sizeof(Node), currentlevelnode->level->array[i].count, fp);
 			fclose(fp);
@@ -510,7 +609,7 @@ void ClearLSM(LSMtree *lsm){
 }
 
 int main(){
-	LSMtree *lsm = CreateLSM(2, 3, 0.001);
+	LSMtree *lsm = CreateLSM(2, 3, 0.0000001);
 	Put(lsm, 1, 2, true);
 	Put(lsm, 5, 10, true);
 	Put(lsm, 3, 6, true);

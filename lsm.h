@@ -30,16 +30,13 @@ typedef struct Run{
 	int size;
 	int start;
 	int end;
-	//bool filtered;
-	int fencepointer;
-	//BloomFilter *bloom;
 } Run;
 
 typedef struct Level{
 	Run *array;
 	int count;
 	int size;
-	//bool filtered;
+	double targetfpr;
 	BloomFilter *filters;
 } Level;
 
@@ -49,41 +46,11 @@ typedef struct LevelNode{
 	struct LevelNode *next;
 } LevelNode;
 
-//typedef struct FilteredRun{
-//	int visited;
-//	int count;
-//	int size;
-//	int start;
-//	int end;
-	//BloomFilter bloom;
-//	FILE *f;
-//} FilteredRun;
-
-//typedef struct UnfilteredRun{
-//	int visited;
-//	int count;
-//	int size;
-//	int start;
-//	int end;
-//	FILE *filepointer;
-//} UnfilteredRun;
-
-//typedef struct FilteredLevel{
-//	FilteredRun *array;
-//	int count;
-//	int size;
-//} FilteredLevel;
-
-//typedef struct UnfilteredLevel{
-//	UnfilteredRun *array;
-//	int count;
-//	int size;
-//} UnfilteredLevel;
-
 typedef struct LSMtree{
 	Heap *buffer;
 	int T;
 	LevelNode *L0;
+	double fpr1;
 } LSMtree;
 
 //declaration for heap.c
@@ -96,17 +63,17 @@ void PrintNode(Heap *h);
 void ClearHeap(Heap *h);
 
 //declaration for level.c
-Level *CreateLevel(int size, bool filtered);
+Level *CreateLevel(int size, double fpr);
 //void LevelHeapifyBottomTop(Level *level, int index);
 //void LevelHeapifyTopBottom(Level *level, int parent);
-void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, BloomFilter *bloom);
+void InsertRun(Level *level, int count, int size, int start, int end);
 Run PopRun(Level *level);
 //void IncreaseRunVisited(Level *level, int index, int visited);
 
 //declaration for lsm.c
 LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr);
-void Merge(LevelNode *Dest, int origin, int levelsize, bool filtered,
-	int runcount, int runsize, Node *sortedrun, BloomFilter *bloom);
+void Merge(LevelNode *Current, int origin, int levelsize,
+	int runcount, int runsize, Node *sortedrun, double targetfpr);
 void Put(LSMtree *lsm, int key, int value, bool flag);
 void PrintStats(LSMtree *lsm);
 void ClearLSM(LSMtree *lsm);

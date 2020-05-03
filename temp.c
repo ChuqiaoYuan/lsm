@@ -420,6 +420,22 @@ void PrintStats(LSMtree *lsm){
 	printf("There are %d pairs on the LSM-tree in total. \n", total);
 }
 
+
+		if(targetfpr < 0.3){
+			double numbits = - 2 * () * log(targetfpr); //注意runcount变化
+			size_t m = (size_t)numbits;
+			double numhashes = 0.7 * numbits / ();
+			int k = (int)numhashes;
+			BloomFilter *filter = CreateBloomFilter(k, m);
+			(int i;)
+			for(i = 0; i < (); i++){
+				InsertEntry(filter, ()[()].key); //注意array其实
+			}
+			destlevel->filters[()] = *filter;
+		}
+
+
+
 int main(){
 	//需要一句一句debug, 注意测试到尽可能多的函数，尽可能多的if分句
 	LSMtree *lsm = CreateLSM(3, 3, 0.001);

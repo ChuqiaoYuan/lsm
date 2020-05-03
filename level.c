@@ -3,71 +3,39 @@
 #include <stdbool.h>
 #include "lsm.h"
 
-Level *CreateLevel(int size, bool filtered){
+Level *CreateLevel(int size, double fpr){
 	Level *level = (Level *) malloc(sizeof(Level));
 	if(level == NULL){
 		printf("There is not enough memory for a new level.");
 		return NULL;
 	}
 	level->size = size;
-	level->filtered = filtered;
 	level->count = 0;
 	level->array = (Run *) malloc(size * sizeof(Run));
 	if(level->array == NULL){
 		printf("There is not enough memory for the array of runs.");
 		return NULL;
 	}
+	level->filters = (BloomFilter *) malloc(size * sizeof(BloomFilter));
+	level->targetfpr = fpr;
 	return level;
 }
 
-/*
-void LevelHeapifyBottomTop(Level *level, int index){
-	Run temp;
-	int parent = (index-1) / 2;
-	if(level->array[parent].visited > level->array[index].visited){
-		temp = level->array[parent];
-		level->array[parent] = level->array[index];
-		level->array[index] = temp;
-		LevelHeapifyBottomTop(level, parent);
-	}
-}
-
-void LevelHeapifyTopBottom(Level *level, int parent){
-	int left = parent * 2 + 1;
-	int right = parent * 2 + 1;
-	int min;
-	Run temp;
-	if(left >= level->count){
-		left = -1;
-	}
-	if(right >= level->count){
-		right = -1;
-	}
-	if((left > 0) && (level->array[left].visited < level->array[parent].visited)){
-		min = left;
-	}else{
-		min = parent;
-	}
-	if((right > 0) && (level->array[right].visited < level->array[min].visited)){
-		min = right;
-	}
-	if(min != parent){
-		temp = level->array[min];
-		level->array[min] = level->array[parent];
-		level->array[parent] = temp;
-		LevelHeapifyTopBottom(level, min);
-	}
-}
-*/
-
-void InsertRun(Level *level, int count, int size, int start, int end, bool filtered, BloomFilter *bloom){
+void InsertRun(Level *level, int count, int size, int start, int end){
 	level->array[level->count].count = count;
 	level->array[level->count].size = size;
 	level->array[level->count].start = start;
 	level->array[level->count].end = end;
-	level->array[level->count].filtered = filtered;
+	/*
+	//level->array[level->count].filtered = filtered;
 	level->array[level->count].fencepointer = level->count;
-	level->array[level->count].bloom = bloom;
+	//level->array[level->count].bloom = bloom;
+	BloomFilter *filter = CreateBloomFilter(int k, size_t size);
+	level->filters[level->count] = *filter;
+	*/
+
+
+
 	level->count += 1;
 }
 
