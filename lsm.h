@@ -59,17 +59,15 @@ void ClearHeap(Heap *h);
 
 //declaration for level.c
 Level *CreateLevel(int size, double fpr);
-//void LevelHeapifyBottomTop(Level *level, int index);
-//void LevelHeapifyTopBottom(Level *level, int parent);
 void InsertRun(Level *level, int count, int size, int start, int end);
 Run PopRun(Level *level);
-//void IncreaseRunVisited(Level *level, int index, int visited);
 
 //declaration for lsm.c
 LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr);
 void Merge(LevelNode *Current, int origin, int levelsize,
 	int runcount, int runsize, Node *sortedrun, double targetfpr);
 void Put(LSMtree *lsm, int key, int value, bool flag);
+void Get(LSMtree *lsm, int key, char *result);
 void PrintStats(LSMtree *lsm);
 void ClearLSM(LSMtree *lsm);
 
