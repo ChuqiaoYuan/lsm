@@ -20,11 +20,6 @@ typedef struct BloomFilter{
 	size_t size;
 } BloomFilter;
 
-//bloom filter从Run里面去掉，应该是每个level有自己的一个bloom filter array
-//每个run对应着自己的bloom filter
-//然后每个level有自己的target fpr的记录
-//Run里的fencepointer最好也都去掉
-
 typedef struct Run{
 	int count;
 	int size;

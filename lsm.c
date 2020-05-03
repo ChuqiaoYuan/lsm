@@ -569,6 +569,71 @@ void Put(LSMtree *lsm, int key, int value, bool flag){
 	}
 }
 
+void Get(LSMtree *lsm, int key, char *result){
+	int position = GetKeyPos(lsm->buffer, key);
+	int i;
+	if(position != -1){
+		if(lsm->buffer->array[position].flag){
+			int val = lsm->buffer->array[position].value;
+			sprintf(result, "%d", val);
+		}else{
+		}
+	}else{
+		LevelNode *current = lsm->L0->next;
+		while(current != NULL){
+			Level *exploringlevel = current->level;
+			for(i = 0; i < exploringlevel->count; i++){
+				if((exploringlevel->array[i].start <= key) && (exploringlevel->array[i].end >= key)){
+					if(LookUp(&exploringlevel->filters[i], key)){
+						Node *currentarray = (Node *) malloc(exploringlevel->array[i].count * sizeof(Node));
+						char filename[14];
+						sprintf(filename, "L%dN%d", current->number, i);
+						FILE *fp = fopen(filename, "rt");
+						fread(currentarray, sizeof(Node), exploringlevel->array[i].count, fp);
+						fclose(fp);
+						int left = 0;
+						int right = exploringlevel->array[i].count - 1;
+						int mid = (left + right) / 2;
+						if(key == currentarray[left].key){
+							if(currentarray[left].flag){
+								int val = currentarray[left].value;
+								sprintf(result, "%d", val);
+							}else{
+								return;
+							}
+						}else if(key == currentarray[right].key){
+							if(currentarray[right].flag){
+								int val = currentarray[right].value;
+								sprintf(result, "%d", val);
+							}else{
+								return;
+							}
+						}
+						while(left != mid){
+							if(key == currentarray[mid].key){
+								if(currentarray[mid].flag){
+									int val = currentarray[mid].value;
+									sprintf(result, "%d", val);
+								}else{
+									return;
+								}
+							}else if(key > currentarray[mid].key){
+								left = mid;
+								mid = (left + right) / 2;
+							}else{
+								right = mid;
+								mid = (left + right) / 2;
+							}
+						}
+					}
+				}
+			}
+			current = current->next;
+		}
+		return;
+	}
+}
+
 void PrintStats(LSMtree *lsm){
 	int i;
 	int j;
@@ -588,7 +653,7 @@ void PrintStats(LSMtree *lsm){
 			Node *currentarray = (Node *) malloc(currentlevelnode->level->array[i].count * sizeof(Node));
 			char filename[14];
 			sprintf(filename, "L%dN%d", levelnum, i);
-			FILE *fp =fopen(filename, "rt");
+			FILE *fp = fopen(filename, "rt");
 			fread(currentarray, sizeof(Node), currentlevelnode->level->array[i].count, fp);
 			fclose(fp);
 			for(j = 0; j < currentlevelnode->level->array[i].count; j++){
@@ -602,6 +667,9 @@ void PrintStats(LSMtree *lsm){
 	}
 	printf("There are %d pairs on the LSM-tree in total. \n", total);
 }
+
+//get如何通过返回值表示没有的情况
+//返回char
 
 void ClearLSM(LSMtree *lsm){
 	ClearHeap(lsm->buffer);
@@ -669,6 +737,11 @@ int main(){
 	Put(lsm, 95, 190, true);
 	Put(lsm, 19, 38, true);
 	//Put(lsm, 3, 7, true);
+	char val[16];
+	int key = 95;
+	Get(lsm, key, val);
+	printf("value of key %d is %s \n", key, val);
+	printf("\n");
 
 	PrintNode(lsm->buffer);
 	printf("\n");
