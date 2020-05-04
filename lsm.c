@@ -660,6 +660,76 @@ void Get(LSMtree *lsm, int key, char *result){
 	}
 }
 
+
+
+void Range(LSMtree *lsm, int start, int end, char *result){
+	int i;
+	int j;
+	int find = 0;
+	bool findarray[end - start];
+
+	for(i = 0; i < (end - start); i++){
+		findarray[i] = false;
+	}
+
+	char str[10];
+	for(i = 0; i < lsm->buffer->count; i++){
+		if((lsm->buffer->array[i].key >= start) && (lsm->buffer->array[i].key < end)){
+			if(!findarray[lsm->buffer->array[i].key - start]){
+				find += 1;
+				findarray[lsm->buffer->array[i].key - start] = true;
+				if(lsm->buffer->array[i].flag){
+					sprintf(str, "%d:%d ", lsm->buffer->array[i].key, lsm->buffer->array[i].value);
+					//printf("%s\n", str);
+					strcat(result, str);
+				}
+			}
+		}
+		if(find == (end - start)){
+			break;
+		}
+	}
+	LevelNode *currentlevelnode = lsm->L0->next;
+	while(currentlevelnode != NULL){
+		if(find == (end - start)){
+			break;
+		}
+		int levelnum = currentlevelnode->number;
+		for(i = 0; i < currentlevelnode->level->count; i++){
+			if((currentlevelnode->level->array[i].end >= start) || (currentlevelnode->level->array[i].start < end)){
+				Node *currentarray = (Node *) malloc(currentlevelnode->level->array[i].count * sizeof(Node));
+				char filename[14];
+				sprintf(filename, "L%dN%d", levelnum, i);
+				FILE *fp = fopen(filename, "rt");
+				fread(currentarray, sizeof(Node), currentlevelnode->level->array[i].count, fp);
+				fclose(fp);
+				for(j = 0; j < currentlevelnode->level->array[i].count; j++){
+					if(currentarray[j].key >= end){
+						break;
+					}else if(currentarray[j].key >= start){
+						//printf("key explored %d ", currentarray[j].key);
+						if(!findarray[currentarray[j].key - start]){
+							//printf("true \n");
+							find += 1;
+							findarray[currentarray[j].key - start] = true;
+							if(currentarray[j].flag){
+								sprintf(str, "%d:%d ", currentarray[j].key, currentarray[j].value);
+								//printf("%s\n ", str);
+								strcat(result, str);
+							}
+						}
+					}
+				}
+			}
+		}
+		currentlevelnode = currentlevelnode->next;
+	}
+	//printf("result in function %s \n", result);
+}
+
+
+
+
 void PrintStats(LSMtree *lsm){
 	int i;
 	int j;
@@ -703,7 +773,7 @@ void ClearLSM(LSMtree *lsm){
 }
 
 int main(){
-	LSMtree *lsm = CreateLSM(2, 3, 0.0000001);
+	LSMtree *lsm = CreateLSM(3, 3, 0.0000001);
 	Put(lsm, 1, 2, true);
 	Put(lsm, 5, 10, true);
 	Put(lsm, 3, 6, true);
@@ -762,13 +832,20 @@ int main(){
 	Put(lsm, 85, 170, true);
 	Put(lsm, 95, 190, true);
 	Put(lsm, 19, 38, true);
-	
+	Put(lsm, -39, -78, true);
 	
 	//Put(lsm, 3, 7, true);
 	char val[16];
-	int key = 200;
+	int key = -39;
 	Get(lsm, key, val);
 	printf("value of key %d is %s \n", key, val);
+	printf("\n");
+
+	int start = 90;
+	int end = 103;
+	char result[1000] = {""};
+	Range(lsm, start, end, result);
+	printf("range query result for [%d, %d) is %s\n", start, end, result);
 	printf("\n");
 
 	PrintNode(lsm->buffer);
