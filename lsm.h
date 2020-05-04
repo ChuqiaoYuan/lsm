@@ -69,6 +69,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 void Put(LSMtree *lsm, int key, int value, bool flag);
 void Get(LSMtree *lsm, int key, char *result);
 void Range(LSMtree *lsm, int start, int end, char *result);
+void Load(LSMtree *lsm, char *binaryfile);
 void PrintStats(LSMtree *lsm);
 void ClearLSM(LSMtree *lsm);
 
