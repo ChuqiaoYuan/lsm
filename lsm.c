@@ -738,7 +738,7 @@ void Load(LSMtree *lsm, char *binaryfile){
 void PrintStats(LSMtree *lsm){
 	int i;
 	int j;
-	int total = lsm->buffer->count;
+	int total = 0;
 
 	LevelNode *Current = lsm->L0;
 
@@ -759,6 +759,9 @@ void PrintStats(LSMtree *lsm){
 			fclose(fp);
 			for(j = 0; j < currentlevelnode->level->array[i].count; j++){
 				printf("%d:%d:L%d  ", currentarray[j].key, currentarray[j].value, levelnum);
+				if(!currentarray[j].flag){
+					total -= 1;
+				}
 			}
 			printf("a run has ended. \n");
 		}
@@ -778,7 +781,7 @@ void ClearLSM(LSMtree *lsm){
 }
 
 int main(){
-	LSMtree *lsm = CreateLSM(3, 4, 0.0000001);
+	LSMtree *lsm = CreateLSM(4, 4, 0.0000001);
 	Put(lsm, 1, 2, true);
 	Put(lsm, 5, 10, true);
 	Put(lsm, 3, 6, true);
@@ -841,7 +844,6 @@ int main(){
 
 	Load(lsm, "data/load_file");
 	
-	//Put(lsm, 3, 7, true);
 	char val[16];
 	int key = -39;
 	Get(lsm, key, val);
