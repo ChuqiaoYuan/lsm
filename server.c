@@ -15,6 +15,7 @@ void response(int sockfd){
     char buff[80]; 
     char result[1000];
     LSMtree *lsm = CreateLSM(2, 3, 0.00000001);
+    Load(lsm, "data/load_file");
 
     while (1){
     	bzero(buff, 80);
@@ -115,13 +116,21 @@ void response(int sockfd){
     		printf("key %d \n", key);
     		Put(lsm, key, 0, false);
     		write(sockfd, result, sizeof(result));
-    	}else if(buff[0] == 'l'){
-    		printf("%c", buff[2]);
+    	}/*else if(buff[0] == 'l'){
+    		char filename[80];
+    		int pos = 2;
+    		bzero(filename, 80);
+    		while(pos < 80){
+    			filename[pos - 2] = buff[pos];
+    			pos += 1;
+    		}
+    		printf("file %s", filename);
+    		Load(lsm, filename);
     		write(sockfd, result, sizeof(result));
     	}else if(buff[0] == 's'){
-    		printf("ook");
+    		PrintStats(lsm);
     		write(sockfd, result, sizeof(result));
-    	}
+    	}*/
     	printf("Response to client %s\n", result);
     	//write(sockfd, result, sizeof(result));
     }

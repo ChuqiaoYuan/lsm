@@ -726,15 +726,18 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 }
 
 void Load(LSMtree *lsm, char *binaryfile){
-	int data[8192];
+	int data[1024];
 	FILE *fp = fopen(binaryfile, "rb");
-	int count = fread(data, sizeof(int), 8192, fp);
+	printf("Here it is 3.5 \n");
+	int count = fread(data, sizeof(int), 1024, fp);
 	fclose(fp);
+	printf("Here it is 3 \n");
 	int i;
 	for(i = 0; i < (count / 2); i++){
 		//printf("insert key %d, value %d \n", data[2 * i], data[2 * i + 1]);
 		Put(lsm, data[2 * i], data[2 * i + 1], true);
 	}
+	printf("Here it is 4 \n");
 }
 
 
