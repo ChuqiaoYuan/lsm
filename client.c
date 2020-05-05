@@ -18,8 +18,14 @@ void query(int sockfd){
 		bzero(buff, sizeof(buff));
 		read(sockfd, result, sizeof(result));
 		printf("%s\n", result);
+		bzero(result, sizeof(result));
 	}
 	fclose(fp);
+	buff[0] = 'e';
+	buff[1] = 'x';
+	buff[2] = 'i';
+	buff[3] = 't';
+	write(sockfd, buff, sizeof(buff));
 }
 
 int main(){

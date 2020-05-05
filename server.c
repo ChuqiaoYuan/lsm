@@ -14,12 +14,15 @@
 void response(int sockfd){ 
     char buff[80]; 
     char result[1000];
-    LSMtree *lsm = CreateLSM(100, 10, 0.00000001);
+    LSMtree *lsm = CreateLSM(2, 3, 0.00000001);
 
     while (1){
     	bzero(buff, 80);
     	bzero(result, 1000);
     	read(sockfd, buff, sizeof(buff));
+    	if(buff[0] == 'e'){
+    		return;
+    	}
     	printf("Query from client %s\n", buff);
 
     	if(buff[0] == 'p'){
