@@ -17,7 +17,7 @@ void query(int sockfd){
 		write(sockfd, buff, sizeof(buff));
 		bzero(buff, sizeof(buff));
 		read(sockfd, result, sizeof(result));
-		printf("Result from server %s\n", result);
+		printf("%s\n", result);
 	}
 	fclose(fp);
 }

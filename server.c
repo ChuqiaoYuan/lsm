@@ -14,10 +14,11 @@
 void response(int sockfd){ 
     char buff[80]; 
     char result[1000];
-    LSMtree *CreateLSM()
+    LSMtree *lsm = CreateLSM(100, 10, 0.00000001);
 
     while (1){
     	bzero(buff, 80);
+    	bzero(result, 1000);
     	read(sockfd, buff, sizeof(buff));
     	printf("Query from client %s\n", buff);
 
@@ -48,6 +49,8 @@ void response(int sockfd){
     		}
     		value = value * sign;
     		printf("key %d value %d \n", key, value);
+    		Put(lsm, key, value, true);
+    		write(sockfd, result, sizeof(result));
     	}else if(buff[0] == 'g'){
     		int pos = 2;
     		int key = 0;
@@ -62,6 +65,8 @@ void response(int sockfd){
     		}
     		key = key * sign;
     		printf("key %d \n", key);
+    		Get(lsm, key, result);
+    		write(sockfd, result, sizeof(result));
     	}else if(buff[0] == 'r'){
     		int pos = 2;
     		int start = 0;
@@ -89,6 +94,8 @@ void response(int sockfd){
     		}
     		end = end * sign;
     		printf("start %d end %d \n", start, end);
+    		Range(lsm, start, end, result);
+    		write(sockfd, result, sizeof(result));
     	}else if(buff[0] == 'd'){
     		int pos = 2;
     		int key = 0;
@@ -103,19 +110,17 @@ void response(int sockfd){
     		}
     		key = key * sign;
     		printf("key %d \n", key);
+    		Put(lsm, key, 0, false);
+    		write(sockfd, result, sizeof(result));
     	}else if(buff[0] == 'l'){
     		printf("%c", buff[2]);
+    		write(sockfd, result, sizeof(result));
     	}else if(buff[0] == 's'){
     		printf("ook");
+    		write(sockfd, result, sizeof(result));
     	}
-
-    	bzero(result, 1000);
-
-    	result[0] = 'a';
-    	result[1] = 'n';
-    	result[2] = 'n';
-    	//printf("Response to client %s\n", result);
-    	write(sockfd, result, sizeof(result));
+    	printf("Response to client %s\n", result);
+    	//write(sockfd, result, sizeof(result));
     }
 } 
   

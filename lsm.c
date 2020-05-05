@@ -202,10 +202,10 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					FILE *fp = fopen(name, "rt");
 					fread(topush, sizeof(Node), pushtonext.count, fp);
 					fclose(fp);
-					if(origin <= 0){
+					if(origin <= 7){
 						Merge(Current->next, (origin + 1), levelsize, 
 							pushtonext.count, pushtonext.size * (levelsize + 1), topush, (targetfpr * (levelsize + 1)));
-					}else if (origin == 1){
+					}else if (origin == 8){
 						Merge(Current->next, (origin + 1), 1,
 							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, (targetfpr * (levelsize + 1) * levelsize));
 					}else{
@@ -488,10 +488,10 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					FILE *fp = fopen(name, "rt");
 					fread(topush, sizeof(Node), pushtonext.count, fp);
 					fclose(fp);
-					if(origin <= 0){
+					if(origin <= 7){
 						Merge(Current->next, (origin + 1), levelsize, 
 							pushtonext.count, (pushtonext.size * (levelsize + 1)), topush, (targetfpr * (levelsize + 1)));
-					}else if (origin == 1){
+					}else if (origin == 8){
 						Merge(Current->next, (origin + 1), 1, 
 							pushtonext.count, (pushtonext.size * (levelsize + 1) * levelsize), topush, (targetfpr * (levelsize + 1) * levelsize));
 					}else{
@@ -661,11 +661,14 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 	int i;
 	int j;
 	int find = 0;
+	//printf("Here it is 0\n");
 	bool findarray[end - start];
 
+	//printf("Here it is 1\n");
 	for(i = 0; i < (end - start); i++){
 		findarray[i] = false;
 	}
+	//printf("Here it is 2\n");
 
 	char str[10];
 	for(i = 0; i < lsm->buffer->count; i++){
@@ -780,6 +783,7 @@ void ClearLSM(LSMtree *lsm){
 	free(lsm->L0);
 }
 
+/*
 int main(){
 	LSMtree *lsm = CreateLSM(4, 4, 0.0000001);
 	Put(lsm, 1, 2, true);
@@ -863,4 +867,4 @@ int main(){
 	ClearLSM(lsm);
 	return 0;
 }
-
+*/
