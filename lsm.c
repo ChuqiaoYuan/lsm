@@ -655,27 +655,23 @@ void Get(LSMtree *lsm, int key, char *result){
 	}
 }
 
-
-
 void Range(LSMtree *lsm, int start, int end, char *result){
 	int i;
 	int j;
 	int find = 0;
 	//printf("Here it is 0\n");
-	bool findarray[end - start];
+	HashTable *table = CreateHashTable(1001);
 
-	//printf("Here it is 1\n");
-	for(i = 0; i < (end - start); i++){
-		findarray[i] = false;
-	}
 	//printf("Here it is 2\n");
 
 	char str[10];
 	for(i = 0; i < lsm->buffer->count; i++){
 		if((lsm->buffer->array[i].key >= start) && (lsm->buffer->array[i].key < end)){
-			if(!findarray[lsm->buffer->array[i].key - start]){
+			//if(!findarray[lsm->buffer->array[i].key - start]){
+			if(!CheckTable(table, lsm->buffer->array[i].key)){
 				find += 1;
-				findarray[lsm->buffer->array[i].key - start] = true;
+				//findarray[lsm->buffer->array[i].key - start] = true;
+				AddToTable(table, lsm->buffer->array[i].key);
 				if(lsm->buffer->array[i].flag){
 					sprintf(str, "%d:%d ", lsm->buffer->array[i].key, lsm->buffer->array[i].value);
 					//printf("%s\n", str);
@@ -706,10 +702,12 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 						break;
 					}else if(currentarray[j].key >= start){
 						//printf("key explored %d ", currentarray[j].key);
-						if(!findarray[currentarray[j].key - start]){
+						//if(!findarray[currentarray[j].key - start]){
+						if(!CheckTable(table, currentarray[j].key)){
 							//printf("true \n");
 							find += 1;
-							findarray[currentarray[j].key - start] = true;
+							//findarray[currentarray[j].key - start] = true;
+							AddToTable(table, currentarray[j].key);
 							if(currentarray[j].flag){
 								sprintf(str, "%d:%d ", currentarray[j].key, currentarray[j].value);
 								//printf("%s\n ", str);
@@ -785,7 +783,6 @@ void ClearLSM(LSMtree *lsm){
 	ClearHeap(lsm->buffer);
 	free(lsm->L0);
 }
-
 /*
 int main(){
 	LSMtree *lsm = CreateLSM(4, 4, 0.0000001);

@@ -41,6 +41,16 @@ typedef struct LevelNode{
 	struct LevelNode *next;
 } LevelNode;
 
+typedef struct ChainNode{
+	int key;
+	struct ChainNode *next;
+} ChainNode;
+
+typedef struct HashTable{
+	int size;
+	ChainNode *array;
+} HashTable;
+
 typedef struct LSMtree{
 	Heap *buffer;
 	int T;
@@ -81,4 +91,7 @@ void InsertEntry(BloomFilter *filter, int key);
 bool LookUp(BloomFilter *filter, int key);
 void ClearBloomFilter(BloomFilter *filter);
 
-
+//declaration for hashtable.c
+HashTable *CreateHashTable(int size);
+void AddToTable(HashTable *table, int key);
+bool CheckTable(HashTable *table, int key);
