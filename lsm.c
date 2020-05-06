@@ -659,22 +659,16 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 	int i;
 	int j;
 	int find = 0;
-	//printf("Here it is 0\n");
 	HashTable *table = CreateHashTable(1001);
 
-	//printf("Here it is 2\n");
-
-	char str[10];
+	char str[32];
 	for(i = 0; i < lsm->buffer->count; i++){
 		if((lsm->buffer->array[i].key >= start) && (lsm->buffer->array[i].key < end)){
-			//if(!findarray[lsm->buffer->array[i].key - start]){
 			if(!CheckTable(table, lsm->buffer->array[i].key)){
 				find += 1;
-				//findarray[lsm->buffer->array[i].key - start] = true;
 				AddToTable(table, lsm->buffer->array[i].key);
 				if(lsm->buffer->array[i].flag){
 					sprintf(str, "%d:%d ", lsm->buffer->array[i].key, lsm->buffer->array[i].value);
-					//printf("%s\n", str);
 					strcat(result, str);
 				}
 			}
@@ -701,16 +695,11 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 					if(currentarray[j].key >= end){
 						break;
 					}else if(currentarray[j].key >= start){
-						//printf("key explored %d ", currentarray[j].key);
-						//if(!findarray[currentarray[j].key - start]){
 						if(!CheckTable(table, currentarray[j].key)){
-							//printf("true \n");
 							find += 1;
-							//findarray[currentarray[j].key - start] = true;
 							AddToTable(table, currentarray[j].key);
 							if(currentarray[j].flag){
 								sprintf(str, "%d:%d ", currentarray[j].key, currentarray[j].value);
-								//printf("%s\n ", str);
 								strcat(result, str);
 							}
 						}
@@ -745,11 +734,8 @@ void PrintStats(LSMtree *lsm){
 	int total = 0;
 
 	LevelNode *Current = lsm->L0;
-
-	//printf("test %d %d %d\n", Current->next->number, Current->next->level->count, Current->next->level->size);
-	//printf("filename %d \n", Current->next->level->array[0].fencepointer);
-
 	LevelNode *currentlevelnode = lsm->L0->next;
+
 	while(currentlevelnode != NULL){
 		int levelnum = currentlevelnode->number;
 		int currentcount = 0;
@@ -776,8 +762,6 @@ void PrintStats(LSMtree *lsm){
 	printf("There are %d pairs on the LSM-tree in total. \n", total);
 }
 
-//get如何通过返回值表示没有的情况
-//返回char
 
 void ClearLSM(LSMtree *lsm){
 	ClearHeap(lsm->buffer);

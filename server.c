@@ -1,5 +1,3 @@
-//6个operation都要写，每个operation的command line看265DSL
-
 #include <stdio.h> 
 #include <netdb.h> 
 #include <netinet/in.h> 
@@ -14,16 +12,18 @@
 void response(int sockfd){ 
     char buff[80]; 
     char result[1000];
-    LSMtree *lsm = CreateLSM(2, 3, 0.00000001);
-    Load(lsm, "data/load_file");
+    LSMtree *lsm = CreateLSM(100, 10, 0.00000001);
+    //Load(lsm, "data/load_file");
 
     while (1){
     	bzero(buff, 80);
     	bzero(result, 1000);
     	read(sockfd, buff, sizeof(buff));
-    	if(buff[0] == 'e'){
-    		return;
-    	}
+        if(strlen(buff) == 0){
+            close(sockfd);
+            return;
+        }
+
     	printf("Query from client %s\n", buff);
 
     	if(buff[0] == 'p'){
@@ -116,7 +116,12 @@ void response(int sockfd){
     		printf("key %d \n", key);
     		Put(lsm, key, 0, false);
     		write(sockfd, result, sizeof(result));
-    	}/*else if(buff[0] == 'l'){
+    	}else{
+            close(sockfd);
+        }
+
+
+        /*else if(buff[0] == 'l'){
     		char filename[80];
     		int pos = 2;
     		bzero(filename, 80);
@@ -180,6 +185,5 @@ int main(){
     }
   
     response(connfd); 
-    close(sockfd); 
     return 0;
 } 

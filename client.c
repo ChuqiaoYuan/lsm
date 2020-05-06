@@ -4,6 +4,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h> 
+#include <time.h>
 #include <sys/socket.h> 
 #define PORT 8080 
 #define SA struct sockaddr 
@@ -21,14 +22,11 @@ void query(int sockfd){
 		bzero(result, sizeof(result));
 	}
 	fclose(fp);
-	buff[0] = 'e';
-	buff[1] = 'x';
-	buff[2] = 'i';
-	buff[3] = 't';
-	write(sockfd, buff, sizeof(buff));
 }
 
 int main(){
+	clock_t start_t, finish_t;
+	double total_t = 0;
 	int sockfd, connfd;
 	struct sockaddr_in servaddr, cli;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -50,8 +48,11 @@ int main(){
     } 
     else
         printf("connected to the server..\n"); 
-
+    start_t = clock();
     query(sockfd);
+    finish_t = clock();
+    total_t = (double)(finish_t - start_t) / CLOCKS_PER_SEC;
+    printf("Latency %f seconds \n", total_t);
     close(sockfd);
     return 0;
 }
