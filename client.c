@@ -11,7 +11,7 @@
 
 void query(int sockfd){
 	char buff[80];
-	char result[1000];
+	char result[4096];
 	FILE *fp = fopen("workload.txt", "rt");
 	while(!feof(fp)){
 		fgets(buff, 80, fp);

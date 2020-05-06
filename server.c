@@ -11,11 +11,11 @@
   
 bool Respond(int sockfd, LSMtree *lsm){ 
 	char buff[80]; 
-	char result[1000];
+	char result[4096];
 
 	while (1){
 		bzero(buff, 80);
-		bzero(result, 1000);
+		bzero(result, 4096);
 		read(sockfd, buff, sizeof(buff));
 		printf("Query from client %s \n", buff);
 		if(buff[0] == 'p'){
