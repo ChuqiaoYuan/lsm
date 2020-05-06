@@ -44,7 +44,7 @@ typedef struct LevelNode{
 	struct LevelNode *next;
 } LevelNode;
 
-typedef struc ChainNode{
+typedef struct ChainNode{
 	int key;
 	struct ChainNode *next;
 } ChainNode;
