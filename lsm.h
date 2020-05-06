@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include "lsm.h"
 
 typedef struct Node{
 	int key;
@@ -45,7 +44,7 @@ typedef struct LevelNode{
 	struct LevelNode *next;
 } LevelNode;
 
-typedef struct ChainNode{
+typedef struc ChainNode{
 	int key;
 	struct ChainNode *next;
 } ChainNode;
