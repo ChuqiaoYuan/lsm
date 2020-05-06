@@ -15,16 +15,18 @@ void query(int sockfd){
 	FILE *fp = fopen("workload.txt", "rt");
 	while(!feof(fp)){
 		fgets(buff, 80, fp);
-		printf("length of buffer %lu \n", strlen(buff));
 		if(strlen(buff) == 0.0){
+			/*
 			printf("Here it is 1\n");
 			bzero(buff, sizeof(buff));
 			buff[0] = 'e';
 			write(sockfd, buff, sizeof(buff));
 			printf("Here it is 2\n");
+			*/
 			break;
 			printf("Here it is 3\n");
 		}
+		printf("%s\n", buff);
 		write(sockfd, buff, sizeof(buff));
 		bzero(buff, sizeof(buff));
 		read(sockfd, result, sizeof(result));
@@ -49,21 +51,21 @@ int main(){
 	}
 	bzero(&servaddr, sizeof(servaddr));
 
-    servaddr.sin_family = AF_INET; 
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
-    servaddr.sin_port = htons(PORT);
+	servaddr.sin_family = AF_INET; 
+	servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+	servaddr.sin_port = htons(PORT);
 
-    if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) { 
-        printf("connection with the server failed...\n"); 
-        exit(0); 
-    } 
-    else
-        printf("connected to the server..\n"); 
-    start_t = clock();
-    query(sockfd);
-    finish_t = clock();
-    total_t = (double)(finish_t - start_t) / CLOCKS_PER_SEC;
-    printf("Latency %f seconds \n", total_t);
-    close(sockfd);
-    return 0;
+	if(connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) { 
+		printf("connection with the server failed...\n"); 
+		exit(0); 
+	}else{
+		printf("connected to the server..\n"); 
+	}
+	start_t = clock();
+	query(sockfd);
+	finish_t = clock();
+	total_t = (double)(finish_t - start_t) / CLOCKS_PER_SEC;
+	printf("Latency %f seconds \n", total_t);
+	close(sockfd);
+	return 0;
 }
