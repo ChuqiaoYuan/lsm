@@ -109,16 +109,8 @@ void response(int sockfd){
     		printf("key %d \n", key);
     		Put(lsm, key, 0, false);
     		write(sockfd, result, sizeof(result));
-    	}else{
-            //write(sockfd, result, sizeof(result));
-            //close(sockfd);
-            printf("Here it is 1\n");
-            break;
-            printf("Here it is 2\n");
-        }
-    	//printf("Response to client %s\n", result);
+    	}
     }
-    printf("Here it is 3\n");
 }
   
 int main(){ 
@@ -165,8 +157,6 @@ int main(){
     }
   
     response(connfd); 
-    printf("Here it is 4\n");
     close(sockfd);
-    printf("Here it is 5\n");
     return 0;
 } 
