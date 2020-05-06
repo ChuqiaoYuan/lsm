@@ -15,6 +15,16 @@ void query(int sockfd){
 	FILE *fp = fopen("workload.txt", "rt");
 	while(!feof(fp)){
 		fgets(buff, 80, fp);
+		printf("length of buffer %lu \n", strlen(buff));
+		if(strlen(buff) == 0.0){
+			printf("Here it is 1\n");
+			bzero(buff, sizeof(buff));
+			buff[0] = 'e';
+			write(sockfd, buff, sizeof(buff));
+			printf("Here it is 2\n");
+			break;
+			printf("Here it is 3\n");
+		}
 		write(sockfd, buff, sizeof(buff));
 		bzero(buff, sizeof(buff));
 		read(sockfd, result, sizeof(result));
@@ -22,6 +32,7 @@ void query(int sockfd){
 		bzero(result, sizeof(result));
 	}
 	fclose(fp);
+	printf("Here it is 4\n");
 }
 
 int main(){

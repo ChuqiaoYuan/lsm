@@ -19,13 +19,6 @@ void response(int sockfd){
     	bzero(buff, 80);
     	bzero(result, 1000);
     	read(sockfd, buff, sizeof(buff));
-        if(strlen(buff) == 0){
-            close(sockfd);
-            return;
-        }
-
-    	printf("Query from client %s\n", buff);
-
     	if(buff[0] == 'p'){
     		int pos = 2;
     		int key = 0;
@@ -117,29 +110,16 @@ void response(int sockfd){
     		Put(lsm, key, 0, false);
     		write(sockfd, result, sizeof(result));
     	}else{
-            close(sockfd);
+            //write(sockfd, result, sizeof(result));
+            //close(sockfd);
+            printf("Here it is 1\n");
+            break;
+            printf("Here it is 2\n");
         }
-
-
-        /*else if(buff[0] == 'l'){
-    		char filename[80];
-    		int pos = 2;
-    		bzero(filename, 80);
-    		while(pos < 80){
-    			filename[pos - 2] = buff[pos];
-    			pos += 1;
-    		}
-    		printf("file %s", filename);
-    		Load(lsm, filename);
-    		write(sockfd, result, sizeof(result));
-    	}else if(buff[0] == 's'){
-    		PrintStats(lsm);
-    		write(sockfd, result, sizeof(result));
-    	}*/
-    	printf("Response to client %s\n", result);
-    	//write(sockfd, result, sizeof(result));
+    	//printf("Response to client %s\n", result);
     }
-} 
+    printf("Here it is 3\n");
+}
   
 int main(){ 
     int sockfd, connfd, len; 
@@ -185,5 +165,8 @@ int main(){
     }
   
     response(connfd); 
+    printf("Here it is 4\n");
+    close(sockfd);
+    printf("Here it is 5\n");
     return 0;
 } 
