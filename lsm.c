@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
 #include "lsm.h"
 
 #define INT_MAX 2147483647

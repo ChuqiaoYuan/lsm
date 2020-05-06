@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "lsm.h"
 
 Heap *CreateHeap(int size){
