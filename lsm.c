@@ -757,6 +757,14 @@ void PrintStats(LSMtree *lsm){
 	printf("There are %d pairs on the LSM-tree in total. \n", total);
 }
 
+LSMtree *BuildLSMTree(int buffersize, int sizeratio, double fprlevel1, bool loaddirectory, char *filename){
+	LSMtree *lsm = CreateLSM(buffersize, sizeratio, fprlevel1);
+	if(loaddirectory){
+		Load(lsm, filename);
+	}
+	return lsm;
+}
+
 
 void ClearLSM(LSMtree *lsm){
 	ClearHeap(lsm->buffer);

@@ -84,6 +84,7 @@ void Get(LSMtree *lsm, int key, char *result);
 void Range(LSMtree *lsm, int start, int end, char *result);
 void Load(LSMtree *lsm, char *binaryfile);
 void PrintStats(LSMtree *lsm);
+LSMtree *BuildLSMTree(int buffersize, int sizeratio, double fprlevel1, bool loaddirectory, char *filename);
 void ClearLSM(LSMtree *lsm);
 
 //declaration for bloom.c
@@ -98,3 +99,6 @@ void ClearBloomFilter(BloomFilter *filter);
 HashTable *CreateHashTable(int size);
 void AddToTable(HashTable *table, int key);
 bool CheckTable(HashTable *table, int key);
+
+//declaration for server.c
+bool Respond(int sockfd, LSMtree *lsm);

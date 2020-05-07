@@ -118,14 +118,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 	}
 	printf("Here it is 3\n");
 }
-
-LSMtree *BuildLSMTree(int buffersize, int sizeratio, double fprlevel1, bool loaddirectory){
-	LSMtree *lsm = CreateLSM(buffersize, sizeratio, fprlevel1);
-	if(loaddirectory){
-		Load(lsm, "data/load_file");
-	}
-	return lsm;
-}
   
 int main(){ 
 	int sockfd, connfd, len; 
@@ -163,7 +155,7 @@ int main(){
 	int buffersize = 100;
 	int sizeratio = 10;
 	double fprlevel1 = 0.00000001;
-	LSMtree *lsm = BuildLSMTree(buffersize, sizeratio, fprlevel1, false);
+	LSMtree *lsm = BuildLSMTree(buffersize, sizeratio, fprlevel1, false, "data/load_file");
 
 	while(1){
 		len = sizeof(cli); 
