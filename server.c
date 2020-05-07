@@ -6,19 +6,45 @@
 #include <sys/socket.h> 
 #include <sys/types.h> 
 #include "lsm.h"
+
 #define PORT 8080 
 #define SA struct sockaddr 
+#define buffersize 10
+#define sizeratio 10
+#define fprlevel1 0.0000001
+#define loaddirectory false
+#define filename "data/load_file"
+
+static LSMtree *lsm = NULL; 
+
+void BuildLSMTree(){
+	lsm = (LSMtree *) malloc(sizeof(LSMtree));
+	if(lsm == NULL){
+		printf("There is not enough memory for an LSM-tree.");
+	}
+	lsm->buffer = CreateHeap(buffersize);
+	lsm->T = sizeratio;
+	lsm->L0 = (LevelNode *) malloc(sizeof(LevelNode));
+	lsm->L0->level = NULL;
+	lsm->L0->number = 0;
+	lsm->L0->next = NULL;
+	lsm->fpr1 = fprlevel1;
+	pthread_mutex_init(&(lsm->lock), NULL);
+	if(loaddirectory){
+		Load(lsm, filename);
+	}
+}
   
 bool Respond(int sockfd, LSMtree *lsm){ 
 	char buff[80]; 
-	char result[4096];
 
 	while (1){
 		bzero(buff, 80);
-		bzero(result, 4096);
 		read(sockfd, buff, sizeof(buff));
 		printf("Query from client %s \n", buff);
 		if(buff[0] == 'p'){
+			char result[16];
+			bzero(result, 16);
 			int pos = 2;
 			int key = 0;
 			int sign = 1;
@@ -48,6 +74,8 @@ bool Respond(int sockfd, LSMtree *lsm){
 			Put(lsm, key, value, true);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'g'){
+			char result[16];
+			bzero(result, 16);
 			int pos = 2;
 			int key = 0;
 			int sign = 1;
@@ -64,6 +92,8 @@ bool Respond(int sockfd, LSMtree *lsm){
 			Get(lsm, key, result);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'r'){
+			char result[4096];
+			bzero(result, 4096);
 			int pos = 2;
 			int start = 0;
 			int sign = 1;
@@ -93,6 +123,8 @@ bool Respond(int sockfd, LSMtree *lsm){
 			Range(lsm, start, end, result);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'd'){
+			char result[16];
+			bzero(result, 16);
 			int pos = 2;
 			int key = 0;
 			int sign = 1;
@@ -152,10 +184,7 @@ int main(){
 		printf("Server listening..\n"); 
 	}
 
-	int buffersize = 100;
-	int sizeratio = 10;
-	double fprlevel1 = 0.00000001;
-	LSMtree *lsm = BuildLSMTree(buffersize, sizeratio, fprlevel1, false, "data/load_file");
+	BuildLSMTree();
 
 	while(1){
 		len = sizeof(cli); 
