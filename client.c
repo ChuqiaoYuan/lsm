@@ -9,7 +9,7 @@
 #define PORT 8080 
 #define SA struct sockaddr 
 
-void query(int sockfd){
+void Query(int sockfd){
 	char buff[80];
 	char result[4096];
 	FILE *fp = fopen("workload.txt", "rt");
@@ -62,7 +62,7 @@ int main(){
 		printf("connected to the server..\n"); 
 	}
 	start_t = clock();
-	query(sockfd);
+	Query(sockfd);
 	finish_t = clock();
 	total_t = (double)(finish_t - start_t) / CLOCKS_PER_SEC;
 	printf("Latency %f seconds \n", total_t);

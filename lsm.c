@@ -15,6 +15,7 @@ LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr){
 	lsm->L0->number = 0;
 	lsm->L0->next = NULL;
 	lsm->fpr1 = fpr;
+	pthread_mutex_init(&(lsm->lock), NULL);
 	return lsm;
 }
 
@@ -757,18 +758,11 @@ void PrintStats(LSMtree *lsm){
 	printf("There are %d pairs on the LSM-tree in total. \n", total);
 }
 
-LSMtree *BuildLSMTree(int buffersize, int sizeratio, double fprlevel1, bool loaddirectory, char *filename){
-	LSMtree *lsm = CreateLSM(buffersize, sizeratio, fprlevel1);
-	if(loaddirectory){
-		Load(lsm, filename);
-	}
-	return lsm;
-}
-
 
 void ClearLSM(LSMtree *lsm){
 	ClearHeap(lsm->buffer);
 	free(lsm->L0);
+	pthread_mutex_destroy(&(lsm->lock));
 }
 /*
 int main(){

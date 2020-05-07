@@ -1,3 +1,6 @@
+// reference: https://www.jianshu.com/p/6afdffe94d96
+
+
 #include "lsm.h"
 
 static ThreadPool *pool = NULL;

@@ -62,6 +62,7 @@ typedef struct LSMtree{
 	int T;
 	LevelNode *L0;
 	double fpr1;
+	pthread_mutex_t lock;
 } LSMtree;
 
 typedef struct Worker{
@@ -79,6 +80,12 @@ typedef struct ThreadPool{
 	int count;
 	bool shutdown;
 } ThreadPool;
+
+typedef struct ThreadArg{
+	int sockfd;
+	int first;
+	int second;
+} ThreadArg;
 
 //declaration for heap.c
 Heap *CreateHeap(int size);
@@ -103,7 +110,6 @@ void Get(LSMtree *lsm, int key, char *result);
 void Range(LSMtree *lsm, int start, int end, char *result);
 void Load(LSMtree *lsm, char *binaryfile);
 void PrintStats(LSMtree *lsm);
-LSMtree *BuildLSMTree(int buffersize, int sizeratio, double fprlevel1, bool loaddirectory, char *filename);
 void ClearLSM(LSMtree *lsm);
 
 //declaration for bloom.c
@@ -125,7 +131,7 @@ bool Respond(int sockfd, LSMtree *lsm);
 //declaration for client.c
 void Query(int sockfd);
 
-//declaration for threadpool.c
+//declaration for parallelizedserver.c
 void CreateThreadPool(int threadnumber);
 void AddToPool(void *(*process) (void *arg), void *arg);
 int ClearPool();
