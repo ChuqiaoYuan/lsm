@@ -4,6 +4,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pthread.h>
 
 typedef struct Node{
 	int key;
@@ -61,6 +64,22 @@ typedef struct LSMtree{
 	double fpr1;
 } LSMtree;
 
+typedef struct Worker{
+	void *(*process) (void *arg);
+	void *arg;
+	struct Worker *next;
+} Worker;
+
+typedef struct ThreadPool{
+	pthread_mutex_t lock;
+	pthread_cond_t ready;
+	int threadnumber;
+	pthread_t *threadid;
+	Worker *head;
+	int count;
+	bool shutdown;
+} ThreadPool;
+
 //declaration for heap.c
 Heap *CreateHeap(int size);
 int GetKeyPos(Heap *h, int key);
@@ -102,3 +121,12 @@ bool CheckTable(HashTable *table, int key);
 
 //declaration for server.c
 bool Respond(int sockfd, LSMtree *lsm);
+
+//declaration for client.c
+void Query(int sockfd);
+
+//declaration for threadpool.c
+void CreateThreadPool(int threadnumber);
+void AddToPool(void *(*process) (void *arg), void *arg);
+int ClearPool();
+void *ThreadRoutine(void *arg);
