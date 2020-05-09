@@ -20,33 +20,6 @@ Heap *CreateHeap(int size){
 	return h;
 }
 
-//int GetKeyPos(Heap *h, int key){
-//	int left = 0;
-//	int right = h->count - 1;
-//	if((key < h->array[left].key) | (key > h->array[right].key)){
-//		return -1;
-//	}else{
-//		int mid = (left + right) / 2;
-//		if(key == h->array[left].key){
-//			return left;
-//		}else if(key == h->array[right].key){
-//			return right;
-//		}
-//		while(left != mid){
-//			if(key == h->array[mid].key){
-//				return mid;
-//			}else if(key > h->array[mid].key){
-//				left = mid;
-//				mid = (left + right) / 2;
-//			}else{
-//				right = mid;
-//				mid = (left + right) / 2;
-//			}
-//		}
-//		return -1;
-//	}
-//}
-
 int GetKeyPos(Heap *h, int key){
 	if(h->count == 0){
 		return -1;
@@ -118,19 +91,11 @@ void HeapifyTopBottom(Heap *h, int parent){
 }
 
 void InsertKey(Heap *h, int key, int value, bool flag){
-	//int position = GetKeyPos(h, key);
-	//if(position != -1){
-	//	h->array[position].value = value;
-	//	h->array[position].flag = flag;
-	//}else{
-		//if(h->count < h->size){
-		h->array[h->count].key = key;
-		h->array[h->count].value = value;
-		h->array[h->count].flag = flag;
-		HeapifyBottomTop(h, h->count);
-		h->count += 1;
-		//}
-	//}
+	h->array[h->count].key = key;
+	h->array[h->count].value = value;
+	h->array[h->count].flag = flag;
+	HeapifyBottomTop(h, h->count);
+	h->count += 1;
 }
 
 Node PopMin(Heap *h){
