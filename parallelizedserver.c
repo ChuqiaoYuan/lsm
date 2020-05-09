@@ -1,4 +1,5 @@
-// reference: 
+// reference: https://www.geeksforgeeks.org/tcp-server-client-implementation-in-c/
+// reference: https://dzone.com/articles/parallel-tcpip-socket-server-with-multi-threading
 
 #include <stdio.h> 
 #include <netdb.h> 
