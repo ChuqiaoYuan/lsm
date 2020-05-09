@@ -1,5 +1,4 @@
-//reference https://drewdevault.com/2016/04/12/How-to-write-a-better-bloom-filter-in-C.html
-
+//reference: https://drewdevault.com/2016/04/12/How-to-write-a-better-bloom-filter-in-C.html
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,11 +28,9 @@ unsigned int jenkins(int key){
 		hash += (hash << 10);
 		hash ^= (hash >> 6);
 	}
-	
 	hash += (hash << 3);
 	hash ^= (hash >> 11);
 	hash += (hash << 15);
-	
 	return hash;
 }
 
@@ -53,9 +50,7 @@ void InsertEntry(BloomFilter *filter, int key){
 	int i;
 	for(i = 0; i < filter->k; i++){
 		hash[i] = h1 + i * h2;
-		//printf("%d ", hash[i]);
 	}
-	//printf("input\n");
 	for(i = 0; i < filter->k; i++){
 		hash[i] %= filter->size * 8;
 		bits[hash[i] / 8] |= (1 << hash[i] % 8);
@@ -70,10 +65,7 @@ bool LookUp(BloomFilter *filter, int key){
 	int i;
 	for(i = 0; i < filter->k; i++){
 		hash[i] = h1 + i * h2;
-		//printf("%d ", hash[i]);
-	}
-	//printf("lookup \n");
-	
+	}	
 	for(i = 0; i < filter->k; i++){
 		hash[i] %= filter->size * 8;
 		if (!(bits[hash[i] / 8] & 1 << hash[i] % 8)){
