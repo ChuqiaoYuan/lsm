@@ -118,7 +118,7 @@ void *ThreadRoutine(void *arg){
 
 void *ParallelizedPut(void *arg){
 	pthread_mutex_lock(&(lsm->lock));
-	printf("Thread 0x%x is working on put\n", pthread_self());
+	//printf("Thread 0x%x is working on put\n", pthread_self());
 	char result[16];
 	bzero(result, 16);
 	ThreadArg *arguments = (ThreadArg *) arg;
@@ -147,7 +147,7 @@ void *ParallelizedRange(void *arg){
 
 void *ParallelizedDelete(void *arg){
 	pthread_mutex_lock(&(lsm->lock));
-	printf("Thread 0x%x is working on delete\n", pthread_self());
+	//printf("Thread 0x%x is working on delete\n", pthread_self());
 	char result[16];
 	bzero(result, 16);
 	ThreadArg *arguments = (ThreadArg *) arg;
