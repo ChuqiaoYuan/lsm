@@ -9,6 +9,7 @@
 #include <netinet/in.h> 
 #include <sys/socket.h> 
 #include <sys/types.h>
+#include <time.h>
 #include <pthread.h>
 
 typedef struct Node{
@@ -132,7 +133,7 @@ bool CheckTable(HashTable *table, int key);
 bool Respond(int sockfd, LSMtree *lsm);
 
 //declaration for client.c
-void Query(int sockfd);
+void Query(int sockfd, char *filename);
 
 //declaration for parallelizedserver.c
 void CreateThreadPool(int threadnumber);
