@@ -152,10 +152,10 @@ int main(){
   
 	sockfd = socket(AF_INET, SOCK_STREAM, 0); 
 	if (sockfd == -1){ 
-		printf("Socket creation failed...\n"); 
+		printf("Socket creation failed.\n"); 
 		exit(0); 
 	}else{
-		printf("Socket successfully created..\n"); 
+		printf("Socket is successfully created.\n"); 
 	}
 	bzero(&servaddr, sizeof(servaddr)); 
   
@@ -164,19 +164,19 @@ int main(){
 	servaddr.sin_port = htons(PORT); 
   
 	if ((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0){ 
-		printf("Socket bind failed...\n"); 
+		printf("Socket binding failed.\n"); 
 		exit(0); 
 	} 
 	else{
-		printf("Socket successfully binded..\n"); 
+		printf("Socket successfully binded.\n"); 
 	}
   
 	if ((listen(sockfd, 5)) != 0){ 
-		printf("Listen failed...\n"); 
+		printf("Server listening failed.\n"); 
 		exit(0); 
 	} 
 	else{
-		printf("Server listening..\n"); 
+		printf("Server listening.\n"); 
 	}
 
 	BuildLSMTree();
@@ -185,10 +185,10 @@ int main(){
 		len = sizeof(cli); 
 		connfd = accept(sockfd, (SA*)&cli, &len); 
 		if(connfd < 0){ 
-			printf("Server acccept failed...\n"); 
+			printf("Server acceptance failed.\n"); 
 			exit(0); 
 		}else{
-			printf("Server acccept the client...\n"); 
+			printf("Server accept the client.\n"); 
 		}
 		bool shutdown = Respond(connfd, lsm);
 		if(shutdown){

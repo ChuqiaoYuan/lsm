@@ -1,5 +1,3 @@
-//主要任务是读完workload.txt然后把每一行逐条发给server，并且读server的回执，当每一条都收到回执后再关上
-
 #include <netdb.h> 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -9,22 +7,14 @@
 #define PORT 8080 
 #define SA struct sockaddr 
 
-void Query(int sockfd){
+void Query(int sockfd, char *filename){
 	char buff[80];
 	char result[4096];
-	FILE *fp = fopen("workload.txt", "rt");
+	FILE *fp = fopen(filename, "rt");
 	while(!feof(fp)){
 		fgets(buff, 80, fp);
 		if(strlen(buff) == 0.0){
-			/*
-			printf("Here it is 1\n");
-			bzero(buff, sizeof(buff));
-			buff[0] = 'e';
-			write(sockfd, buff, sizeof(buff));
-			printf("Here it is 2\n");
-			*/
 			break;
-			printf("Here it is 3\n");
 		}
 		printf("%s\n", buff);
 		write(sockfd, buff, sizeof(buff));
@@ -34,14 +24,14 @@ void Query(int sockfd){
 		bzero(result, sizeof(result));
 	}
 	fclose(fp);
-	printf("Here it is 4\n");
 }
 
-int main(){
+int main(int argc, char **argv){
 	clock_t start_t, finish_t;
 	double total_t = 0;
 	int sockfd, connfd;
 	struct sockaddr_in servaddr, cli;
+	char *filename;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(sockfd == -1){
 		printf("Socket creation failed.\n");
@@ -56,16 +46,18 @@ int main(){
 	servaddr.sin_port = htons(PORT);
 
 	if(connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) { 
-		printf("connection with the server failed...\n"); 
+		printf("Connection with the server failed.\n"); 
 		exit(0); 
 	}else{
-		printf("connected to the server..\n"); 
+		printf("Connected to the server.\n"); 
 	}
 	start_t = clock();
-	Query(sockfd);
+	filename = (argc > 1) ? argv[1] : "workload.txt";
+	Query(sockfd, filename);
 	finish_t = clock();
 	total_t = (double)(finish_t - start_t) / CLOCKS_PER_SEC;
-	printf("Latency %f seconds \n", total_t);
+	printf("Query ended.\n");
+	printf("Latency: %f seconds \n", total_t);
 	close(sockfd);
 	return 0;
 }
