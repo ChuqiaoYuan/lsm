@@ -1,12 +1,5 @@
 // reference: https://www.geeksforgeeks.org/tcp-server-client-implementation-in-c/
 
-#include <stdio.h> 
-#include <netdb.h> 
-#include <netinet/in.h> 
-#include <stdlib.h> 
-#include <string.h> 
-#include <sys/socket.h> 
-#include <sys/types.h> 
 #include "lsm.h"
 
 #define PORT 8080 

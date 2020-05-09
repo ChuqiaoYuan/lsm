@@ -664,6 +664,7 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 				find += 1;
 				AddToTable(table, lsm->buffer->array[i].key);
 				if(lsm->buffer->array[i].flag){
+					bzero(str, 32);
 					sprintf(str, "%d:%d ", lsm->buffer->array[i].key, lsm->buffer->array[i].value);
 					strcat(result, str);
 				}
@@ -695,6 +696,7 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 							find += 1;
 							AddToTable(table, currentarray[j].key);
 							if(currentarray[j].flag){
+								bzero(str, 32);
 								sprintf(str, "%d:%d ", currentarray[j].key, currentarray[j].value);
 								strcat(result, str);
 							}
@@ -705,7 +707,7 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 		}
 		currentlevelnode = currentlevelnode->next;
 	}
-	//printf("result in function %s \n", result);
+	ClearTable(table);
 }
 
 void Load(LSMtree *lsm, char *binaryfile){

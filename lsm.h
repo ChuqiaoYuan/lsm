@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <math.h>
 #include <unistd.h>
+#include <netdb.h> 
+#include <netinet/in.h> 
+#include <sys/socket.h> 
 #include <sys/types.h>
 #include <pthread.h>
 
