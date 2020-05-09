@@ -42,6 +42,11 @@ bool CheckTable(HashTable *table, int key){
 	return false;
 }
 
+void ClearTable(HashTable *table){
+	free(table->array);
+	free(table);
+}
+
 /*
 int main(){
 	HashTable *t = CreateHashTable(7);
