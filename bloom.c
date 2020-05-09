@@ -1,8 +1,5 @@
 //reference: https://drewdevault.com/2016/04/12/How-to-write-a-better-bloom-filter-in-C.html
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "lsm.h"
 
 unsigned int djb2(int key){
