@@ -1,3 +1,5 @@
+// reference: 
+
 #include <stdio.h> 
 #include <netdb.h> 
 #include <netinet/in.h> 
@@ -11,7 +13,7 @@
 #define SA struct sockaddr 
 #define buffersize 100
 #define sizeratio 10
-#define fprlevel1 0.0000001
+#define fprlevel1 0.001
 #define loaddirectory false
 #define filename "data/load_file"
 
@@ -20,7 +22,6 @@ static ThreadPool *pool = NULL;
 
 static LSMtree *lsm = NULL; 
 
-//void BuildLSMTree(int buffersize, int sizeratio, double fprlevel1, bool loaddirectory, char *filename){
 void BuildLSMTree(){
 	lsm = (LSMtree *) malloc(sizeof(LSMtree));
 	if(lsm == NULL){
@@ -69,7 +70,6 @@ void AddToPool(void *(*process) (void *arg), void *arg){
 	}else{
 		pool->head = newworker;
 	}
-	//assert(pool->head != NULL);
 	pool->count += 1;
 	pthread_mutex_unlock(&(pool->lock));
 	pthread_cond_signal(&(pool->ready));
@@ -123,14 +123,12 @@ void *ParallelizedPut(void *arg){
 	bzero(result, 16);
 	ThreadArg *arguments = (ThreadArg *) arg;
 	Put(lsm, arguments->first, arguments->second, true);
-	//Put(lsm, key, value, true);
 	write(arguments->sockfd, result, sizeof(result));
 	pthread_mutex_unlock(&(lsm->lock));
 }
 
 void *ParallelizedGet(void *arg){
-	//Get(lsm, key, result);
-	printf("Thread 0x%x is working on get\n", pthread_self());
+	//printf("Thread 0x%x is working on get\n", pthread_self());
 	char result[16];
 	bzero(result, 16);
 	ThreadArg *arguments = (ThreadArg *) arg;
@@ -139,8 +137,7 @@ void *ParallelizedGet(void *arg){
 }
 
 void *ParallelizedRange(void *arg){
-	//Range(lsm, start, end, result);
-	printf("Thread 0x%x is working on range\n", pthread_self());
+	//printf("Thread 0x%x is working on range\n", pthread_self());
 	char result[4096];
 	bzero(result, 4096);
 	ThreadArg *arguments = (ThreadArg *) arg;
@@ -154,7 +151,6 @@ void *ParallelizedDelete(void *arg){
 	char result[16];
 	bzero(result, 16);
 	ThreadArg *arguments = (ThreadArg *) arg;
-	//Put(lsm, key, 0, false);
 	Put(lsm, arguments->first, 0, false);
 	write(arguments->sockfd, result, sizeof(result));
 	pthread_mutex_unlock(&(lsm->lock));	
@@ -162,12 +158,8 @@ void *ParallelizedDelete(void *arg){
   
 bool ParallelizedRespond(int sockfd, LSMtree *lsm){ 
 	char buff[80]; 
-	//char result[4096];
-
-	//加入线程池后主要是把所有查询都挨个往里扔，注意当进行写操作的时候LSM要加锁，进行读操作的时候开始调线程
 	while (1){
 		bzero(buff, 80);
-		//bzero(result, 4096);
 		read(sockfd, buff, sizeof(buff));
 		printf("Query from client %s \n", buff);
 		if(buff[0] == 'p'){
@@ -196,13 +188,11 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 			}
 			value = value * sign;
 			printf("key %d value %d \n", key, value);
-			//Put(lsm, key, value, true);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
 			arguments->first = key;
 			arguments->second = value;
 			AddToPool(ParallelizedPut, arguments);
-			//write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'g'){
 			int pos = 2;
 			int key = 0;
@@ -217,13 +207,11 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 			}
 			key = key * sign;
 			printf("key %d \n", key);
-			//Get(lsm, key, result);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
 			arguments->first = key;
 			arguments->second = 0;
 			AddToPool(ParallelizedGet, arguments);
-			//write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'r'){
 			int pos = 2;
 			int start = 0;
@@ -257,8 +245,6 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 			arguments->first = start;
 			arguments->second = end;
 			AddToPool(ParallelizedRange, arguments);
-
-			//write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'd'){
 			int pos = 2;
 			int key = 0;
@@ -273,23 +259,19 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 			}
 			key = key * sign;
 			printf("key %d \n", key);
-			//Put(lsm, key, 0, false);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
 			arguments->first = key;
 			arguments->second = 0;
 			AddToPool(ParallelizedDelete, arguments);
-
-			//write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'e'){
-			printf("Here it is 1\n");
+			printf("Exit request from client has been received.\n");
 			return true;
 		}else{
+			printf("Queries from client has been finished.\n");
 			return false;
 		}
-		printf("Here it is 2\n");
 	}
-	printf("Here it is 3\n");
 }
 
   
@@ -299,10 +281,10 @@ int main(){
   
 	sockfd = socket(AF_INET, SOCK_STREAM, 0); 
 	if (sockfd == -1){ 
-		printf("socket creation failed...\n"); 
+		printf("Socket creation failed.\n"); 
 		exit(0); 
 	}else{
-		printf("Socket successfully created..\n"); 
+		printf("Socket is successfully created.\n"); 
 	}
 	bzero(&servaddr, sizeof(servaddr)); 
   
@@ -311,38 +293,34 @@ int main(){
 	servaddr.sin_port = htons(PORT); 
   
 	if ((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0){ 
-		printf("socket bind failed...\n"); 
+		printf("Socket binding failed.\n"); 
 		exit(0); 
 	} 
 	else{
-		printf("Socket successfully binded..\n"); 
+		printf("Socket is successfully binded.\n"); 
 	}
   
 	if ((listen(sockfd, 5)) != 0){ 
-		printf("Listen failed...\n"); 
+		printf("Server listening failed.\n"); 
 		exit(0); 
 	} 
 	else{
-		printf("Server listening..\n"); 
+		printf("Server is listening.\n"); 
 	}
 
-	//LSMtree *lsm = BuildLSMTree(buffersize, sizeratio, fprlevel1, false, "data/load_file");
-	//BuildLSMTree(buffersize, sizeratio, fprlevel1, loaddirectory, filename);
 	BuildLSMTree();
 
-	//加线程池
 	CreateThreadPool(4);
 
 	while(1){
 		len = sizeof(cli); 
 		connfd = accept(sockfd, (SA*)&cli, &len); 
 		if(connfd < 0){ 
-			printf("server acccept failed...\n"); 
+			printf("Server acceptance failed.\n"); 
 			exit(0); 
 		}else{
-			printf("server acccept the client...\n"); 
+			printf("Server accepts the client.\n"); 
 		}
-		//=client还是挨个handle，但是同一个client有多个线程去handle
 		bool shutdown = ParallelizedRespond(connfd, lsm);
 		if(shutdown){
 			ClearPool();
@@ -351,9 +329,7 @@ int main(){
 		}
 	}
   
-	//respond(connfd); 
-	printf("Here it is 4\n");
+	printf("Server is shut down.\n");
 	close(sockfd);
-	printf("Here it is 5\n");
 	return 0;
 } 

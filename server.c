@@ -168,7 +168,7 @@ int main(){
 		exit(0); 
 	} 
 	else{
-		printf("Socket successfully binded.\n"); 
+		printf("Socket is successfully binded.\n"); 
 	}
   
 	if ((listen(sockfd, 5)) != 0){ 
@@ -176,7 +176,7 @@ int main(){
 		exit(0); 
 	} 
 	else{
-		printf("Server listening.\n"); 
+		printf("Server is listening.\n"); 
 	}
 
 	BuildLSMTree();
@@ -188,14 +188,14 @@ int main(){
 			printf("Server acceptance failed.\n"); 
 			exit(0); 
 		}else{
-			printf("Server accept the client.\n"); 
+			printf("Server accepts the client.\n"); 
 		}
 		bool shutdown = Respond(connfd, lsm);
 		if(shutdown){
 			break;
 		}
 	}
-  	printf("Server is shut down.\n");
+	printf("Server is shut down.\n");
 	close(sockfd);
 	return 0;
 } 
