@@ -11,7 +11,7 @@
 #define SA struct sockaddr 
 #define buffersize 100
 #define sizeratio 10
-#define fprlevel1 0.0000001
+#define fprlevel1 0.001
 #define loaddirectory false
 #define filename "data/load_file"
 
@@ -70,7 +70,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			value = value * sign;
-			printf("key %d value %d \n", key, value);
 			Put(lsm, key, value, true);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'g'){
@@ -88,7 +87,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			key = key * sign;
-			printf("key %d \n", key);
 			Get(lsm, key, result);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'r'){
@@ -119,7 +117,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			end = end * sign;
-			printf("start %d end %d \n", start, end);
 			Range(lsm, start, end, result);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'd'){
@@ -137,18 +134,16 @@ bool Respond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			key = key * sign;
-			printf("key %d \n", key);
 			Put(lsm, key, 0, false);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'e'){
-			printf("Here it is 1\n");
+			printf("Exit request from client has been received.\n");
 			return true;
 		}else{
+			printf("Queries from client has been finished.\n");
 			return false;
 		}
-		printf("Here it is 2\n");
 	}
-	printf("Here it is 3\n");
 }
   
 int main(){ 
@@ -157,7 +152,7 @@ int main(){
   
 	sockfd = socket(AF_INET, SOCK_STREAM, 0); 
 	if (sockfd == -1){ 
-		printf("socket creation failed...\n"); 
+		printf("Socket creation failed...\n"); 
 		exit(0); 
 	}else{
 		printf("Socket successfully created..\n"); 
@@ -169,7 +164,7 @@ int main(){
 	servaddr.sin_port = htons(PORT); 
   
 	if ((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0){ 
-		printf("socket bind failed...\n"); 
+		printf("Socket bind failed...\n"); 
 		exit(0); 
 	} 
 	else{
@@ -190,20 +185,17 @@ int main(){
 		len = sizeof(cli); 
 		connfd = accept(sockfd, (SA*)&cli, &len); 
 		if(connfd < 0){ 
-			printf("server acccept failed...\n"); 
+			printf("Server acccept failed...\n"); 
 			exit(0); 
 		}else{
-			printf("server acccept the client...\n"); 
+			printf("Server acccept the client...\n"); 
 		}
 		bool shutdown = Respond(connfd, lsm);
 		if(shutdown){
 			break;
 		}
 	}
-  
-	//respond(connfd); 
-	printf("Here it is 4\n");
+  	printf("Server is shut down.\n");
 	close(sockfd);
-	printf("Here it is 5\n");
 	return 0;
 } 
