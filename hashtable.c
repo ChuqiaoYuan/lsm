@@ -8,6 +8,9 @@ HashTable *CreateHashTable(int size){
 	}
 	table->size = size;
 	table->array = (ChainNode *) malloc(size * sizeof(ChainNode));
+	if(table->array == NULL){
+		printf("There is not enough memory for an array in the hash table.")
+	}
 	int i;
 	for(i = 0; i < size; i++){
 		table->array[i].next = NULL;
@@ -23,6 +26,7 @@ void AddToTable(HashTable *table, int key){
 		previous = node;
 		node = node->next;
 	}
+	//separate link list is used to keep keys with the same hash function
 	previous->next = (ChainNode *) malloc(sizeof(ChainNode));
 	previous->next->key = key;
 	previous->next->next = NULL;
@@ -43,6 +47,14 @@ bool CheckTable(HashTable *table, int key){
 }
 
 void ClearTable(HashTable *table){
+	int i;
+	for(i = 0; i < table->size; i++){
+		ChainNode *node = table->array[i].next;
+		while(node != NULL){
+			node = node.next;
+			free(node);
+		}
+	}
 	free(table->array);
 	free(table);
 }

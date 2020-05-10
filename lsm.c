@@ -680,8 +680,7 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 	int i;
 	int j;
 	int find = 0;
-	HashTable *table = CreateHashTable(1001);
-
+	HashTable *table = CreateHashTable(101);
 	char str[32];
 	for(i = 0; i < lsm->buffer->count; i++){
 		if((lsm->buffer->array[i].key >= start) && (lsm->buffer->array[i].key < end)){

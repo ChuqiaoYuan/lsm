@@ -29,6 +29,17 @@ void BuildLSMTree(){
 		Load(lsm, filename);
 	}
 }
+
+void ClearLSMTree(){
+	ClearHeap(lsm->buffer);
+	LevelNode *current = lsm->L0->next;
+	while(current != NULL){
+		ClearLevel(current->level);
+		free(current);
+		current = current->next;
+	}
+	pthread_mutex_destroy(&(lsm->lock));
+}
   
 bool Respond(int sockfd, LSMtree *lsm){ 
 	char buff[80]; 
@@ -187,6 +198,8 @@ int main(){
 		}
 		bool shutdown = Respond(connfd, lsm);
 		if(shutdown){
+			ClearLSMTree();
+			printf("LSM is cleared.\n");
 			break;
 		}
 	}

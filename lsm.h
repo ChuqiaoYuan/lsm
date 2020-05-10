@@ -107,6 +107,17 @@ void InsertRun(Level *level, int count, int size, int start, int end);
 Run PopRun(Level *level);
 void ClearLevel(Level *l);
 
+//declaration for bloom.c
+unsigned int djb2(int key);
+unsigned int jenkins(int key);
+void InsertEntry(BloomFilter *filter, int key);
+bool LookUp(BloomFilter *filter, int key);
+
+//declaration for hashtable.c
+HashTable *CreateHashTable(int size);
+void AddToTable(HashTable *table, int key);
+bool CheckTable(HashTable *table, int key);
+
 //declaration for lsm.c
 LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr);
 void Merge(LevelNode *Current, int origin, int levelsize,
@@ -116,19 +127,6 @@ void Get(LSMtree *lsm, int key, char *result);
 void Range(LSMtree *lsm, int start, int end, char *result);
 void Load(LSMtree *lsm, char *binaryfile);
 void PrintStats(LSMtree *lsm);
-
-//declaration for bloom.c
-unsigned int djb2(int key);
-unsigned int jenkins(int key);
-BloomFilter *CreateBloomFilter(int k, size_t size);
-void InsertEntry(BloomFilter *filter, int key);
-bool LookUp(BloomFilter *filter, int key);
-void ClearBloomFilter(BloomFilter *filter);
-
-//declaration for hashtable.c
-HashTable *CreateHashTable(int size);
-void AddToTable(HashTable *table, int key);
-bool CheckTable(HashTable *table, int key);
 
 //declaration for server.c
 bool Respond(int sockfd, LSMtree *lsm);

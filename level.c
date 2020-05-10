@@ -18,7 +18,7 @@ Level *CreateLevel(int size, double fpr){
 	return level;
 }
 
-//The structure of the level is a stack, 
+//the structure of the level is a stack, 
 //both insertion and deletion happen at the end of the array.
 
 void InsertRun(Level *level, int count, int size, int start, int end){
@@ -37,6 +37,7 @@ Run PopRun(Level *level){
 
 void ClearLevel(Level *l){
 	int i;
+	//clear bloom filters first.
 	for(i = 0; i < l->count; i++){
 		free(l->filters[i].bits);
 	}
