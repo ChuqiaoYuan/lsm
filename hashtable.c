@@ -9,7 +9,7 @@ HashTable *CreateHashTable(int size){
 	table->size = size;
 	table->array = (ChainNode *) malloc(size * sizeof(ChainNode));
 	if(table->array == NULL){
-		printf("There is not enough memory for an array in the hash table.")
+		printf("There is not enough memory for an array in the hash table.");
 	}
 	int i;
 	for(i = 0; i < size; i++){
@@ -51,7 +51,7 @@ void ClearTable(HashTable *table){
 	for(i = 0; i < table->size; i++){
 		ChainNode *node = table->array[i].next;
 		while(node != NULL){
-			node = node.next;
+			node = node->next;
 			free(node);
 		}
 	}

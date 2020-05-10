@@ -544,6 +544,7 @@ void Get(LSMtree *lsm, int key, char *result){
 								mid = (left + right) / 2;
 							}
 						}
+						free(currentarray);
 					}
 				}
 			}
@@ -608,6 +609,7 @@ void Range(LSMtree *lsm, int start, int end, char *result){
 						}
 					}
 				}
+				free(currentarray);
 			}
 		}
 		currentlevelnode = currentlevelnode->next;
@@ -653,6 +655,7 @@ void PrintStats(LSMtree *lsm){
 				}
 			}
 			printf("a run has ended. \n");
+			free(currentarray);
 		}
 		printf("There are %d pairs on Level %d. \n\n", currentcount, levelnum);
 		total += currentcount;
