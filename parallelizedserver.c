@@ -34,6 +34,17 @@ void BuildLSMTree(){
 	}
 }
 
+void ClearLSMTree(){
+	ClearHeap(lsm->buffer);
+	LevelNode *current = lsm->L0;
+	while(current != NULL){
+		ClearLevel(current->level);
+		free(current);
+		current = current->next;
+	}
+	pthread_mutex_destroy(&(lsm->lock));
+}
+
 void CreateThreadPool(int threadnumber){
 	pool = (ThreadPool *) malloc(sizeof(ThreadPool));
 	pthread_mutex_init(&(pool->lock), NULL);
@@ -318,7 +329,8 @@ int main(){
 		bool shutdown = ParallelizedRespond(connfd, lsm);
 		if(shutdown){
 			ClearPool();
-			ClearLSM(lsm);
+			ClearLSMTree();
+			printf("LSM is cleared");
 			break;
 		}
 	}

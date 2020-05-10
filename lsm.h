@@ -95,6 +95,7 @@ typedef struct ThreadArg{
 Heap *CreateHeap(int size);
 int GetKeyPos(Heap *h, int key);
 void HeapifyBottomTop(Heap *h, int index);
+void HeapifyTopBottom(Heap *h, int parent);
 void InsertKey(Heap *h, int key, int value, bool flag);
 Node PopMin(Heap *h);
 void PrintNode(Heap *h);
@@ -104,6 +105,7 @@ void ClearHeap(Heap *h);
 Level *CreateLevel(int size, double fpr);
 void InsertRun(Level *level, int count, int size, int start, int end);
 Run PopRun(Level *level);
+void ClearLevel(Level *l);
 
 //declaration for lsm.c
 LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr);
@@ -114,7 +116,6 @@ void Get(LSMtree *lsm, int key, char *result);
 void Range(LSMtree *lsm, int start, int end, char *result);
 void Load(LSMtree *lsm, char *binaryfile);
 void PrintStats(LSMtree *lsm);
-void ClearLSM(LSMtree *lsm);
 
 //declaration for bloom.c
 unsigned int djb2(int key);

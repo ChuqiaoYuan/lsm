@@ -31,6 +31,7 @@ unsigned int jenkins(int key){
 	return hash;
 }
 
+/*
 BloomFilter *CreateBloomFilter(int k, size_t size){
 	BloomFilter *filter = calloc(1, sizeof(BloomFilter));
 	filter->k = k;
@@ -38,6 +39,7 @@ BloomFilter *CreateBloomFilter(int k, size_t size){
 	filter->bits = malloc(size);
 	return filter;
 }
+*/
 
 void InsertEntry(BloomFilter *filter, int key){
 	uint8_t *bits = filter->bits;
