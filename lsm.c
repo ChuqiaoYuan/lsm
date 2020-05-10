@@ -42,7 +42,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 			Current->next->level->filters[Current->next->level->count].bits = malloc(m);
 			int i;
 			for(i = 0; i < runcount; i++){
-				InsertEntry(&Current->next->level->filters[Current->next->level->count], sortedrun[i].key);
+				InsertEntry(Current->next->level->filters[Current->next->level->count], sortedrun[i].key);
 			}
 		}
 		InsertRun(Current->next->level, runcount, runsize, start, end);
@@ -112,7 +112,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					destlevel->filters[destlevel->count].size = m;
 					destlevel->filters[destlevel->count].bits = malloc(m);
 					for(i = 0; i < runcount; i++){
-						InsertEntry(&destlevel->filters[destlevel->count], sortedrun[i].key);
+						InsertEntry(destlevel->filters[destlevel->count], sortedrun[i].key);
 					}
 				}
 				InsertRun(destlevel, runcount, runsize, start, end);
@@ -156,7 +156,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						destlevel->filters[minpos].size = m;
 						destlevel->filters[minpos].bits = malloc(m);
 						for(i = 0; i < (oldrun.count + runcount); i++){
-							InsertEntry(&destlevel->filters[minpos], newarray[i].key);
+							InsertEntry(destlevel->filters[minpos], newarray[i].key);
 						}
 					}
 					oldrun.count += runcount;
@@ -221,7 +221,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						destlevel->filters[destlevel->count - 1].size = m;
 						destlevel->filters[destlevel->count - 1].bits = malloc(m);
 						for(i = 0; i < oldrun.size; i++){
-							InsertEntry(&destlevel->filters[destlevel->count - 1], newarray[i].key);
+							InsertEntry(destlevel->filters[destlevel->count - 1], newarray[i].key);
 						}
 					}
 
@@ -246,7 +246,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						destlevel->filters[destlevel->count].size = m;
 						destlevel->filters[destlevel->count].bits = malloc(m);
 						for(i = 0; i < (oldrun.count + runcount - oldrun.size); i++){
-							InsertEntry(&destlevel->filters[destlevel->count], newarray[oldrun.size + i].key);
+							InsertEntry(destlevel->filters[destlevel->count], newarray[oldrun.size + i].key);
 						}
 					}
 
@@ -331,7 +331,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						destlevel->filters[overlap[i]].bits = malloc(m);
 						int ii;
 						for(ii = 0; ii < oldrun.size; ii++){
-							InsertEntry(&destlevel->filters[overlap[i]], newarray[i * oldrun.size + ii].key); 
+							InsertEntry(destlevel->filters[overlap[i]], newarray[i * oldrun.size + ii].key); 
 						}
 					}
 
@@ -356,7 +356,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					destlevel->filters[overlap[numrun - 1]].size = m;
 					destlevel->filters[overlap[numrun - 1]].bits = malloc(m);
 					for(i = 0; i < (c - (numrun - 1) * oldrun.size); i++){
-						InsertEntry(&destlevel->filters[overlap[numrun - 1]], newarray[(numrun - 1) * oldrun.size + i].key); 
+						InsertEntry(destlevel->filters[overlap[numrun - 1]], newarray[(numrun - 1) * oldrun.size + i].key); 
 					}
 				}
 
@@ -393,7 +393,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 						destlevel->filters[overlap[i]].bits = malloc(m);
 						int ii;
 						for(ii = 0; ii < oldrun.size; ii++){
-							InsertEntry(&destlevel->filters[overlap[i]], newarray[i * oldrun.size + ii].key); //注意array其实
+							InsertEntry(destlevel->filters[overlap[i]], newarray[i * oldrun.size + ii].key); //注意array其实
 						}
 					}
 
@@ -440,7 +440,7 @@ void Merge(LevelNode *Current, int origin, int levelsize,
 					destlevel->filters[destlevel->count].size = m;
 					destlevel->filters[destlevel->count].bits = malloc(m);
 					for(i = 0; i < (c - j*oldrun.size); i++){
-						InsertEntry(&destlevel->filters[destlevel->count], newarray[j * oldrun.size + i].key); //注意array其实
+						InsertEntry(destlevel->filters[destlevel->count], newarray[j * oldrun.size + i].key); //注意array其实
 					}
 				}
 				InsertRun(destlevel, (c - j * oldrun.size), oldrun.size,
@@ -496,7 +496,7 @@ void Get(LSMtree *lsm, int key, char *result){
 			Level *exploringlevel = current->level;
 			for(i = 0; i < exploringlevel->count; i++){
 				if((exploringlevel->array[i].start <= key) && (exploringlevel->array[i].end >= key)){
-					if(LookUp(&exploringlevel->filters[i], key)){
+					if(LookUp(exploringlevel->filters[i], key)){
 						//binary search through the run to search key
 						Node *currentarray = (Node *) malloc(exploringlevel->array[i].count * sizeof(Node));
 						char filename[14];

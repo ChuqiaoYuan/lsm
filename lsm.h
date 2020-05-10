@@ -110,8 +110,8 @@ void ClearLevel(Level *l);
 //declaration for bloom.c
 unsigned int djb2(int key);
 unsigned int jenkins(int key);
-void InsertEntry(BloomFilter *filter, int key);
-bool LookUp(BloomFilter *filter, int key);
+void InsertEntry(BloomFilter filter, int key);
+bool LookUp(BloomFilter filter, int key);
 
 //declaration for hashtable.c
 HashTable *CreateHashTable(int size);
