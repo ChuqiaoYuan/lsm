@@ -1,6 +1,30 @@
 # LSM
 LSM tree implementation for Harvard CS265 project.
 
+## Executing
+To compile the programs, run the following command lines.
+```
+gcc -O3 heap.c level.c bloom.c hashtable.c lsm.c server.c -o lsmserver -lm
+
+gcc -O3 client.c -o client
+
+gcc -O3 heap.c level.c bloom.c hashtable.c lsm.c parallelizedserver.c -o pthreadserver -lpthread -lm
+```
+
+To run the programs, run the folloing command lines:
+```
+./lsmserver 
+
+./client test1.txt
+```
+
+or run the parallelized version by running:
+```
+./pthreadserver
+
+./client test1.txt
+```
+
 ## Experiments
 I use workload and data generator for CS265 which can be found [here](https://bitbucket.org/HarvardDASlab/cs265-sysproj/src/master/).
 
