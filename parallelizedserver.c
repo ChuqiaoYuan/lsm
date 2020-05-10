@@ -3,10 +3,10 @@
 
 #include "lsm.h"
 
-#define PORT 8080 
+#define PORT 8080
 #define SA struct sockaddr 
-#define buffersize 100
-#define sizeratio 10
+#define buffersize 64
+#define sizeratio 6
 #define fprlevel1 0.001
 #define loaddirectory false
 #define filename "data/load_file"

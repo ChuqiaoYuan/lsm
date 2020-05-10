@@ -1,7 +1,7 @@
 // reference: https://www.geeksforgeeks.org/tcp-server-client-implementation-in-c/
 
 #include "lsm.h"
-#define PORT 8081 
+#define PORT 8080
 #define SA struct sockaddr 
 
 static char buff[80];

@@ -2,9 +2,9 @@
 
 #include "lsm.h"
 
-#define PORT 8081 
+#define PORT 8080
 #define SA struct sockaddr 
-#define buffersize 128
+#define buffersize 64
 #define sizeratio 6
 #define fprlevel1 0.001
 #define loaddirectory false
