@@ -37,10 +37,6 @@ Run PopRun(Level *level){
 
 void ClearLevel(Level *l){
 	int i;
-	//clear bloom filters first.
-	for(i = 0; i < l->count; i++){
-		free(l->filters[i].bits);
-	}
 	free(l->filters);
 	free(l->array);
 	free(l);
