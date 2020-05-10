@@ -140,3 +140,8 @@ void CreateThreadPool(int threadnumber);
 void AddToPool(void *(*process) (void *arg), void *arg);
 int ClearPool();
 void *ThreadRoutine(void *arg);
+void *ParallelizedPut(void *arg);
+void *ParallelizedGet(void *arg);
+void *ParallelizedRange(void *arg);
+void *ParallelizedDelete(void *arg);
+bool ParallelizedRespond(int sockfd, LSMtree *lsm);

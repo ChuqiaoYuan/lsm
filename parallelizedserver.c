@@ -13,7 +13,6 @@
 
 
 static ThreadPool *pool = NULL;
-
 static LSMtree *lsm = NULL; 
 
 void BuildLSMTree(){
@@ -36,7 +35,7 @@ void BuildLSMTree(){
 
 void ClearLSMTree(){
 	ClearHeap(lsm->buffer);
-	LevelNode *current = lsm->L0;
+	LevelNode *current = lsm->L0->next;
 	while(current != NULL){
 		ClearLevel(current->level);
 		free(current);
@@ -121,11 +120,14 @@ void *ThreadRoutine(void *arg){
 	}
 }
 
+static char buff[80];
+static char result[4096];
+
 void *ParallelizedPut(void *arg){
 	pthread_mutex_lock(&(lsm->lock));
 	//printf("Thread 0x%x is working on put\n", pthread_self());
-	char result[16];
-	bzero(result, 16);
+	//char result[16];
+	bzero(result, 4096);
 	ThreadArg *arguments = (ThreadArg *) arg;
 	Put(lsm, arguments->first, arguments->second, true);
 	write(arguments->sockfd, result, sizeof(result));
@@ -134,8 +136,8 @@ void *ParallelizedPut(void *arg){
 
 void *ParallelizedGet(void *arg){
 	//printf("Thread 0x%x is working on get\n", pthread_self());
-	char result[16];
-	bzero(result, 16);
+	//char result[16];
+	bzero(result, 4096);
 	ThreadArg *arguments = (ThreadArg *) arg;
 	Get(lsm, arguments->first, result);
 	write(arguments->sockfd, result, sizeof(result));
@@ -143,7 +145,7 @@ void *ParallelizedGet(void *arg){
 
 void *ParallelizedRange(void *arg){
 	//printf("Thread 0x%x is working on range\n", pthread_self());
-	char result[4096];
+	//char result[4096];
 	bzero(result, 4096);
 	ThreadArg *arguments = (ThreadArg *) arg;
 	Range(lsm, arguments->first, arguments->second, result);
@@ -153,8 +155,8 @@ void *ParallelizedRange(void *arg){
 void *ParallelizedDelete(void *arg){
 	pthread_mutex_lock(&(lsm->lock));
 	//printf("Thread 0x%x is working on delete\n", pthread_self());
-	char result[16];
-	bzero(result, 16);
+	//char result[16];
+	bzero(result, 4096);
 	ThreadArg *arguments = (ThreadArg *) arg;
 	Put(lsm, arguments->first, 0, false);
 	write(arguments->sockfd, result, sizeof(result));
@@ -162,7 +164,7 @@ void *ParallelizedDelete(void *arg){
 }
   
 bool ParallelizedRespond(int sockfd, LSMtree *lsm){ 
-	char buff[80]; 
+	//char buff[80]; 
 	while (1){
 		bzero(buff, 80);
 		read(sockfd, buff, sizeof(buff));
@@ -192,7 +194,6 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			value = value * sign;
-			printf("key %d value %d \n", key, value);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
 			arguments->first = key;
@@ -211,7 +212,6 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			key = key * sign;
-			printf("key %d \n", key);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
 			arguments->first = key;
@@ -243,7 +243,6 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			end = end * sign;
-			printf("start %d end %d \n", start, end);
 			//Range(lsm, start, end, result);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
@@ -263,7 +262,6 @@ bool ParallelizedRespond(int sockfd, LSMtree *lsm){
 				pos += 1;
 			}
 			key = key * sign;
-			printf("key %d \n", key);
 			ThreadArg *arguments = (ThreadArg *) malloc(sizeof(ThreadArg));
 			arguments->sockfd = sockfd;
 			arguments->first = key;
