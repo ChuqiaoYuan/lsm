@@ -34,22 +34,6 @@ unsigned int jenkins(int key){
 	hash += (hash << 15);
 	return hash;
 }
-/*
-void InsertEntry(BloomFilter *filter, int key){
-	uint8_t *bits = filter->bits;
-	unsigned int hash[filter->size];
-	unsigned int h1 = djb2(key) % filter->size;
-	unsigned int h2 = jenkins(key) % filter->size;
-	int i;
-	for(i = 0; i < filter->k; i++){
-		hash[i] = h1 + i * h2;
-	}
-	for(i = 0; i < filter->k; i++){
-		hash[i] %= filter->size * 8;
-		bits[(hash[i] / 8)] |= (1 << hash[i] % 8);
-	}
-}
-*/
 
 void InsertEntry(BloomFilter filter, int key){
 	uint8_t *bits = filter.bits;
@@ -84,25 +68,6 @@ bool LookUp(BloomFilter filter, int key){
 	return true;
 }
 
-/*
-bool LookUp(BloomFilter *filter, int key){
-	uint8_t *bits = filter->bits;
-	unsigned int hash[filter->size];
-	unsigned int h1 = djb2(key) % filter->size;
-	unsigned int h2 = jenkins(key) % filter->size;
-	int i;
-	for(i = 0; i < filter->k; i++){
-		hash[i] = h1 + i * h2;
-	}	
-	for(i = 0; i < filter->k; i++){
-		hash[i] %= filter->size * 8;
-		if (!(bits[(hash[i] / 8)] & 1 << hash[i] % 8)){
-			return false;
-		}
-	}
-	return true;
-}
-*/
 /*
 int main(){
 	int k = 8;
