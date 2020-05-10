@@ -57,8 +57,8 @@ typedef struct ChainNode{
 } ChainNode;
 
 typedef struct HashTable{
-	int size;
-	ChainNode *array;
+	int count;
+	int *array;
 } HashTable;
 
 typedef struct LSMtree{

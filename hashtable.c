@@ -6,55 +6,31 @@ HashTable *CreateHashTable(int size){
 		printf("There is not enough memory for a hash table.");
 		return NULL;
 	}
-	table->size = size;
-	table->array = (ChainNode *) malloc(size * sizeof(ChainNode));
+	table->count = 0;
+	table->array = (int *) malloc(size * sizeof(int));
 	if(table->array == NULL){
 		printf("There is not enough memory for an array in the hash table.");
-	}
-	int i;
-	for(i = 0; i < size; i++){
-		table->array[i].next = NULL;
 	}
 	return table;
 }
 
 void AddToTable(HashTable *table, int key){
-	int pos = key % table->size;
-	ChainNode *previous = &table->array[pos];
-	ChainNode *node = table->array[pos].next;
-	while(node != NULL){
-		previous = node;
-		node = node->next;
-	}
-	//separate link list is used to keep keys with the same hash function
-	previous->next = (ChainNode *) malloc(sizeof(ChainNode));
-	previous->next->key = key;
-	previous->next->next = NULL;
+	table->array[table->count] = key;
+	table->count += 1;
 	return;
 }
 
 bool CheckTable(HashTable *table, int key){
-	int pos = key % table->size;
-	ChainNode *node = table->array[pos].next;
-	while(node != NULL){
-		if(node->key == key){
+	int i;
+	for(i = 0; i < table->count; i++){
+		if(table->array[i] == key){
 			return true;
-		}else{
-			node = node->next;
 		}
 	}
 	return false;
 }
 
 void ClearTable(HashTable *table){
-	int i;
-	for(i = 0; i < table->size; i++){
-		ChainNode *node = table->array[i].next;
-		while(node != NULL){
-			node = node->next;
-			free(node);
-		}
-	}
 	free(table->array);
 	free(table);
 }
@@ -67,7 +43,7 @@ int main(){
 	AddToTable(t, 22);
 	AddToTable(t, 14);
 	AddToTable(t, 36);
-	int a[10] = {6, 20, 7, 10, 14, 22, 36, 50, 18, 4};
+	int a[10] = {6, 20, 7, 27, 14, 10, 36, 50, 18, 4};
 	int i;
 	for(i = 0; i < 10; i++){
 		if(CheckTable(t, a[i])){
