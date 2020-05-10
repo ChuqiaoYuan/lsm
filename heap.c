@@ -23,33 +23,15 @@ Heap *CreateHeap(int size){
 int GetKeyPos(Heap *h, int key){
 	if(h->count == 0){
 		return -1;
-	}
-	int stack[h->count];
-	int pos;
-	int left;
-	int right;
-	int top = 0;
-	//use a stack to record the subtrees to search for the key
-	stack[top] = 0;
-	while(top != -1){
-		pos = stack[top];
-		top -= 1;
-		if(h->array[pos].key == key){
-			return pos;
-		}else if(h->array[pos].key < key){
-			left = 2 * pos + 1;
-			if(left < h->count){
-				top += 1;
-				stack[top] = left;
-			}
-			right = 2 * pos + 2;
-			if(right < h->count){
-				top += 1;
-				stack[top] = right;
+	}else{
+		int i;
+		for(i = 0; i < h->count; i++){
+			if(h->array[i].key == key){
+				return i;
 			}
 		}
+		return -1;
 	}
-	return -1;
 }
 
 void HeapifyBottomTop(Heap *h, int index){
