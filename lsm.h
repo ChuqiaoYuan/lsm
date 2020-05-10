@@ -117,6 +117,7 @@ bool LookUp(BloomFilter *filter, int key);
 HashTable *CreateHashTable(int size);
 void AddToTable(HashTable *table, int key);
 bool CheckTable(HashTable *table, int key);
+void ClearTable(HashTable *table);
 
 //declaration for lsm.c
 LSMtree *CreateLSM(int buffersize, int sizeratio, double fpr);
