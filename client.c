@@ -4,9 +4,10 @@
 #define PORT 8080 
 #define SA struct sockaddr 
 
+static char buff[80];
+static char result[4096];
+
 void Query(int sockfd, char *filename){
-	char buff[80];
-	char result[4096];
 	FILE *fp = fopen(filename, "rt");
 	while(!feof(fp)){
 		fgets(buff, 80, fp);

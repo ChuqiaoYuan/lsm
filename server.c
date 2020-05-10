@@ -45,14 +45,12 @@ static char buff[80];
 static char result[4096];
   
 bool Respond(int sockfd, LSMtree *lsm){ 
-	//char buff[80]; 
 
 	while (1){
 		bzero(buff, 80);
 		read(sockfd, buff, sizeof(buff));
 		printf("Query from client %s \n", buff);
 		if(buff[0] == 'p'){
-			//char result[16];
 			bzero(result, 4096);
 			int pos = 2;
 			int key = 0;
@@ -82,7 +80,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 			Put(lsm, key, value, true);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'g'){
-			//char result[16];
 			bzero(result, 16);
 			int pos = 2;
 			int key = 0;
@@ -99,7 +96,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 			Get(lsm, key, result);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'r'){
-			//char result[4096];
 			bzero(result, 4096);
 			int pos = 2;
 			int start = 0;
@@ -129,7 +125,6 @@ bool Respond(int sockfd, LSMtree *lsm){
 			Range(lsm, start, end, result);
 			write(sockfd, result, sizeof(result));
 		}else if(buff[0] == 'd'){
-			//char result[16];
 			bzero(result, 4096);
 			int pos = 2;
 			int key = 0;
