@@ -4,9 +4,9 @@
 
 #define PORT 8080
 #define SA struct sockaddr 
-#define buffersize 64
-#define sizeratio 6
-#define fprlevel1 0.001
+#define buffersize 32
+#define sizeratio 3
+#define fprlevel1 0.01
 #define loaddirectory false
 #define filename "data/load_file"
 

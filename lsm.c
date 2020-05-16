@@ -496,7 +496,7 @@ void Get(LSMtree *lsm, int key, char *result){
 			Level *exploringlevel = current->level;
 			for(i = 0; i < exploringlevel->count; i++){
 				if((exploringlevel->array[i].start <= key) && (exploringlevel->array[i].end >= key)){
-					if(LookUp(exploringlevel->filters[i], key)){
+					if(exploringlevel->targetfpr >= 0.3){
 						//binary search through the run to search key
 						Node *currentarray = (Node *) malloc(exploringlevel->array[i].count * sizeof(Node));
 						char filename[14];
@@ -544,7 +544,58 @@ void Get(LSMtree *lsm, int key, char *result){
 								mid = (left + right) / 2;
 							}
 						}
-						free(currentarray);
+						free(currentarray);						
+					}else{
+						if(LookUp(exploringlevel->filters[i], key)){
+							//binary search through the run to search key
+							Node *currentarray = (Node *) malloc(exploringlevel->array[i].count * sizeof(Node));
+							char filename[14];
+							sprintf(filename, "data/L%dN%d", current->number, i);
+							FILE *fp = fopen(filename, "rt");
+							fread(currentarray, sizeof(Node), exploringlevel->array[i].count, fp);
+							fclose(fp);
+							int left = 0;
+							int right = exploringlevel->array[i].count - 1;
+							int mid = (left + right) / 2;
+							if(key == currentarray[left].key){
+								if(currentarray[left].flag){
+									int val = currentarray[left].value;
+									sprintf(result, "%d", val);
+									find = true;
+									break;
+								}else{
+									return;
+								}
+							}else if(key == currentarray[right].key){
+								if(currentarray[right].flag){
+									int val = currentarray[right].value;
+									sprintf(result, "%d", val);
+									find = true;
+									break;
+								}else{
+									return;
+								}
+							}
+							while(left != mid){
+								if(key == currentarray[mid].key){
+									if(currentarray[mid].flag){
+										int val = currentarray[mid].value;
+										sprintf(result, "%d", val);
+										find = true;
+										break;
+									}else{
+										return;
+									}
+								}else if(key > currentarray[mid].key){
+									left = mid;
+									mid = (left + right) / 2;
+								}else{
+									right = mid;
+									mid = (left + right) / 2;
+								}
+							}
+							free(currentarray);
+						}
 					}
 				}
 			}

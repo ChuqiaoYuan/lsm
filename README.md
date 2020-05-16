@@ -1,6 +1,8 @@
 # LSM
 LSM tree implementation for Harvard CS265 project.
 
+This work implements an LSM-tree based on the idea of fluid LSM-tree proposed in [Dostoevsky](https://stratos.seas.harvard.edu/files/stratos/files/dostoevskykv.pdf) and optimized bloom filter bits proposed in [Monkey](https://stratos.seas.harvard.edu/files/stratos/files/monkeykeyvaluestore.pdf). The LSM-tree follows the merge policy of [lazy leveling](https://stratos.seas.harvard.edu/files/stratos/files/dostoevskykv.pdf) and adopts the technique of [partial compaction](http://cidrdb.org/cidr2017/papers/p82-dong-cidr17.pdf) to save space and time in merges.
+
 ## Executing
 To compile the programs, run the following command lines.
 ```
@@ -18,16 +20,16 @@ To run the programs, run the folloing command lines:
 ./client test1.txt
 ```
 
-To evaluate the programs, I use the valgrind tool.
-```
-valgrind --tool=cachegrind ./lsmserver
-```
-
 or run the parallelized version by running:
 ```
 ./pthreadserver
 
 ./client test1.txt
+```
+
+To evaluate the programs, I use the valgrind tool.
+```
+valgrind --tool=cachegrind ./lsmserver
 ```
 
 ## Experiments
